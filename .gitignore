@@ -1,0 +1,59 @@
+### Android / Gradle
+.gradle/
+build/
+**/build/
+
+### Local configuration
+local.properties
+
+### Android Studio / IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+.idea_modules/
+
+### Kotlin / Java
+*.class
+*.log
+
+### Keystore files (НЕ коммить!)
+*.jks
+*.keystore
+**/*.jks
+**/*.keystore
+
+### Google Services
+# google-services.json
+
+### NDK / CMake / External Native Builds
+.cxx/
+.externalNativeBuild/
+**/.cxx/
+**/.externalNativeBuild/
+
+### Generated files
+captures/
+.navigation/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+### Signing / secrets
+# key.properties
+# *.properties
+
+### OS / Editor junk
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+### Firebase / Crashlytics
+# firebase-crashlytics.properties
+# crashlytics-build.properties
+
+### Logs
+*.log
