@@ -26,6 +26,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             EShopAppTheme {
+                HomeScreen()
             }
         }
     }

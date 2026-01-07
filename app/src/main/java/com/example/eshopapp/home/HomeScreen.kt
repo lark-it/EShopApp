@@ -1,16 +1,20 @@
 package com.example.eshopapp.home
 
+import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -38,8 +42,14 @@ import com.example.eshopapp.R
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
+import androidx.compose.material3.FloatingActionButtonDefaults.elevation
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import com.example.eshopapp.ui.theme.EShopAppTheme
 
 
 @Composable
@@ -62,10 +72,17 @@ fun HomeScreen() {
             ProductUiModel(5, "табуретка", 2000,R.drawable.ic_sofa),
         )
     }
-    Column(modifier = Modifier.fillMaxSize()) {
-        SimpleSearchBar()
-        PopularCategory(fakePopularCategories)
-        RecommendedList(fakeRecommendedProducts)
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        item{
+            SimpleSearchBar()
+        }
+        item{
+            PopularCategory(fakePopularCategories)
+            Spacer(Modifier.height(16.dp))
+        }
+        item{
+            RecommendedList(fakeRecommendedProducts)
+        }
     }
 }
 
@@ -109,12 +126,21 @@ fun PopularCategory(categories: List<CategoryUiModel>){
         modifier = Modifier.padding(top = 16.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ){
-            Text("Популярные категории:")
-            Text("Больше:")
+            Text(
+                "Популярные категории:",
+                style = MaterialTheme.typography.titleLarge
+            )
+            Text(
+                "Больше:",
+                style = MaterialTheme.typography.titleSmall
+            )
         }
+        Spacer(Modifier.height(16.dp))
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(horizontal = 16.dp)
@@ -123,7 +149,7 @@ fun PopularCategory(categories: List<CategoryUiModel>){
                 items = categories,
                 key = {it.id}
             ){ fakeCategory ->
-                CategoryCard(
+                PopularCategoryCard(
                     category = fakeCategory
                 )
             }
@@ -132,12 +158,15 @@ fun PopularCategory(categories: List<CategoryUiModel>){
 }
 
 @Composable
-fun CategoryCard(category: CategoryUiModel){
+fun PopularCategoryCard(category: CategoryUiModel){
     Card(
         modifier = Modifier
             .width(120.dp)
             .height(160.dp),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
+        )
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier
@@ -165,55 +194,92 @@ fun CategoryCard(category: CategoryUiModel){
 
 @Composable
 fun RecommendedList(fakeProducts: List<ProductUiModel>){
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ){
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            Text("Рекомендуем:")
+    Column(modifier = Modifier) {
+        Box(Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+        ){
+            Text(
+                "Рекомендуем:",
+                style = MaterialTheme.typography.titleLarge
+            )
         }
-        items(
-            items = fakeProducts,
-            key = { it.id }
-        ) { product ->
-            ProductCard(product = product)
+        val rows = fakeProducts.chunked(2)
+        rows.forEach { rowItems ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                ProductCard(
+                    product = rowItems[0],
+                    modifier = Modifier.weight(1f)
+                )
+                if (rowItems.size > 1) {
+                    ProductCard(
+                        product = rowItems[1],
+                        modifier = Modifier.weight(1f)
+                    )
+                } else {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
         }
-
     }
 }
 @Composable
-fun ProductCard(product: ProductUiModel){
+fun ProductCard(
+    product: ProductUiModel,
+    modifier: Modifier = Modifier
+){
     Card(
-        modifier = Modifier
-            .width(150.dp)
-            .height(250.dp),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Image(
-            painter = painterResource(product.image),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .width(150.dp)
+        modifier = modifier
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
         )
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            Text(product.price.toString() + "₽")
-            Text(product.title)
-            Button(onClick = {}) {
-                Text("В корзину")
+            Image(
+                painter = painterResource(product.image),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+            )
+            Column(
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text(
+                    product.price.toString() + "₽",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    product.title,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(onClick = {}) {
+                    Text("В корзину")
+                }
             }
         }
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview(){
-    HomeScreen()
+    EShopAppTheme {
+        HomeScreen()
+    }
 }
