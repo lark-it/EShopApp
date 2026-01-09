@@ -1,6 +1,5 @@
-package com.example.eshopapp.data.remote.dto
+package com.example.eshopapp.data.network.dto
 
-import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)

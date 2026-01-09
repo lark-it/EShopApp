@@ -1,4 +1,4 @@
-package com.example.eshopapp.catalog
+package com.example.eshopapp.presentation.catalog
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -25,8 +25,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.eshopapp.R
-import com.example.eshopapp.home.CategoryUiModel
-import com.example.eshopapp.home.SimpleSearchBar
+import com.example.eshopapp.presentation.home.CategoryUiModel
+import com.example.eshopapp.presentation.home.SimpleSearchBar
 
 @Composable
 fun AllCategoriesScreen() {

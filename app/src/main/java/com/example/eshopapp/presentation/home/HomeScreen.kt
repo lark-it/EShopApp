@@ -1,6 +1,5 @@
-package com.example.eshopapp.home
+package com.example.eshopapp.presentation.home
 
-import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,10 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
@@ -43,17 +38,23 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
-import androidx.compose.material3.FloatingActionButtonDefaults.elevation
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.VerticalDivider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.example.eshopapp.domain.model.Product
 import com.example.eshopapp.ui.theme.EShopAppTheme
 
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    viewModel: HomeViewModel = hiltViewModel()
+) {
+    val state = viewModel.uiState.collectAsState().value
+
     val fakePopularCategories = remember {
         listOf(
             CategoryUiModel(1, "Смартфоны", R.drawable.ic_phone),
@@ -63,15 +64,25 @@ fun HomeScreen() {
             CategoryUiModel(5, "Мебель", R.drawable.ic_sofa),
         )
     }
-    val fakeRecommendedProducts = remember {
-        listOf(
-            ProductUiModel(1, "поко х200", 200, R.drawable.ic_phone),
-            ProductUiModel(2, "макбук",800, R.drawable.ic_laptop),
-            ProductUiModel(3, "пакет", 1400,R.drawable.ic_grocery),
-            ProductUiModel(4, "вонючка",588, R.drawable.ic_perfume),
-            ProductUiModel(5, "табуретка", 2000,R.drawable.ic_sofa),
-        )
+    when (state) {
+        is HomeUiState.Loading -> {
+            Text("Загрузка")
+        }
+        is HomeUiState.Content -> {
+            val products = state.products
+            HomeScreenContent(products, fakePopularCategories)
+        }
+        is HomeUiState.Error -> {
+            Text(text = state.message)
+            Button(onClick = viewModel::loadProducts) { Text("Повторить") }
+        }
     }
+}
+@Composable
+fun HomeScreenContent(
+        products: List<Product>,
+        fakePopularCategories: List<CategoryUiModel>
+){
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item{
             SimpleSearchBar()
@@ -81,7 +92,7 @@ fun HomeScreen() {
             Spacer(Modifier.height(16.dp))
         }
         item{
-            RecommendedList(fakeRecommendedProducts)
+            RecommendedList(products)
         }
     }
 }
@@ -193,7 +204,7 @@ fun PopularCategoryCard(category: CategoryUiModel){
 }
 
 @Composable
-fun RecommendedList(fakeProducts: List<ProductUiModel>){
+fun RecommendedList(products: List<Product>){
     Column(modifier = Modifier) {
         Box(Modifier
             .fillMaxWidth()
@@ -204,7 +215,7 @@ fun RecommendedList(fakeProducts: List<ProductUiModel>){
                 style = MaterialTheme.typography.titleLarge
             )
         }
-        val rows = fakeProducts.chunked(2)
+        val rows = products.chunked(2)
         rows.forEach { rowItems ->
             Row(
                 modifier = Modifier
@@ -230,7 +241,7 @@ fun RecommendedList(fakeProducts: List<ProductUiModel>){
 }
 @Composable
 fun ProductCard(
-    product: ProductUiModel,
+    product: Product,
     modifier: Modifier = Modifier
 ){
     Card(
@@ -245,8 +256,10 @@ fun ProductCard(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            Image(
-                painter = painterResource(product.image),
+            AsyncImage(
+                model = product.image,
+                placeholder = painterResource(R.drawable.img_placeholder),
+                error = painterResource(R.drawable.img_error),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
