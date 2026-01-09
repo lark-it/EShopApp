@@ -1,0 +1,6 @@
+package com.example.eshopapp.domain.model
+
+data class Category (
+    val name: String,
+    val url: String
+)
