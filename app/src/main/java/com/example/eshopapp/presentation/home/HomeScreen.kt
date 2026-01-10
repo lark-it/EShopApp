@@ -42,6 +42,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -83,16 +84,33 @@ fun HomeScreenContent(
         products: List<Product>,
         fakePopularCategories: List<CategoryUiModel>
 ){
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    val productRows = products.chunked(2)
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
         item{
             SimpleSearchBar()
         }
         item{
             PopularCategory(fakePopularCategories)
-            Spacer(Modifier.height(16.dp))
         }
         item{
-            RecommendedList(products)
+            Box(Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+            ){
+                Text(
+                    "Рекомендуем:",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+        }
+        items(
+            productRows
+        ){ rowItems ->
+            RecommendedRow(rowItems)
         }
     }
 }
@@ -134,7 +152,7 @@ fun SimpleSearchBar(){
 @Composable
 fun PopularCategory(categories: List<CategoryUiModel>){
     Column(
-        modifier = Modifier.padding(top = 16.dp)
+        modifier = Modifier
     ) {
         Row(
             modifier = Modifier
@@ -204,41 +222,28 @@ fun PopularCategoryCard(category: CategoryUiModel){
 }
 
 @Composable
-fun RecommendedList(products: List<Product>){
-    Column(modifier = Modifier) {
-        Box(Modifier
+fun RecommendedRow(products: List<Product>){
+    Row(
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-        ){
-            Text(
-                "Рекомендуем:",
-                style = MaterialTheme.typography.titleLarge
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        ProductCard(
+            product = products[0],
+            modifier = Modifier.weight(1f)
+        )
+        if (products.size > 1) {
+            ProductCard(
+                product = products[1],
+                modifier = Modifier.weight(1f)
             )
-        }
-        val rows = products.chunked(2)
-        rows.forEach { rowItems ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                ProductCard(
-                    product = rowItems[0],
-                    modifier = Modifier.weight(1f)
-                )
-                if (rowItems.size > 1) {
-                    ProductCard(
-                        product = rowItems[1],
-                        modifier = Modifier.weight(1f)
-                    )
-                } else {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-            }
+        } else {
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
 }
+
 @Composable
 fun ProductCard(
     product: Product,
@@ -274,7 +279,10 @@ fun ProductCard(
                 )
                 Text(
                     product.title,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 2,
+                    minLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
             Box(

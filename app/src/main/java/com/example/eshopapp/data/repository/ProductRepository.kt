@@ -9,9 +9,7 @@ class ProductRepository @Inject constructor(
     private val api: ApiService
 ){
     suspend fun getProducts(): List<Product>{
-
         val response = api.getProducts()
-
         return response.products.map { it.toDomain() }
     }
 }
