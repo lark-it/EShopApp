@@ -44,6 +44,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.eshopapp.domain.model.Product
@@ -52,6 +53,7 @@ import com.example.eshopapp.ui.theme.EShopAppTheme
 
 @Composable
 fun HomeScreen(
+    onProductClick: (Int) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state = viewModel.uiState.collectAsState().value
@@ -71,7 +73,7 @@ fun HomeScreen(
         }
         is HomeUiState.Content -> {
             val products = state.products
-            HomeScreenContent(products, fakePopularCategories)
+            HomeScreenContent(onProductClick, products, fakePopularCategories)
         }
         is HomeUiState.Error -> {
             Text(text = state.message)
@@ -81,6 +83,7 @@ fun HomeScreen(
 }
 @Composable
 fun HomeScreenContent(
+        onProductClick: (Int) -> Unit,
         products: List<Product>,
         fakePopularCategories: List<CategoryUiModel>
 ){
@@ -110,7 +113,10 @@ fun HomeScreenContent(
         items(
             productRows
         ){ rowItems ->
-            RecommendedRow(rowItems)
+            RecommendedRow(
+                onProductClick,
+                rowItems
+            )
         }
     }
 }
@@ -222,7 +228,10 @@ fun PopularCategoryCard(category: CategoryUiModel){
 }
 
 @Composable
-fun RecommendedRow(products: List<Product>){
+fun RecommendedRow(
+    onProductClick: (Int) -> Unit,
+    products: List<Product>
+){
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -230,11 +239,13 @@ fun RecommendedRow(products: List<Product>){
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         ProductCard(
+            onProductClick,
             product = products[0],
             modifier = Modifier.weight(1f)
         )
         if (products.size > 1) {
             ProductCard(
+                onProductClick,
                 product = products[1],
                 modifier = Modifier.weight(1f)
             )
@@ -246,6 +257,7 @@ fun RecommendedRow(products: List<Product>){
 
 @Composable
 fun ProductCard(
+    onProductClick: (Int) -> Unit,
     product: Product,
     modifier: Modifier = Modifier
 ){
@@ -255,7 +267,8 @@ fun ProductCard(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp
-        )
+        ),
+        onClick = { onProductClick(product.id) }
     ) {
         Column(
             modifier = Modifier
@@ -294,13 +307,5 @@ fun ProductCard(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview(){
-    EShopAppTheme {
-        HomeScreen()
     }
 }

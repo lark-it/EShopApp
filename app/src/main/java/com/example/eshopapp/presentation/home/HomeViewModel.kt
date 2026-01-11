@@ -17,6 +17,9 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    private val _productState = MutableStateFlow<ProductUiState>(ProductUiState.Loading)
+    val productState: StateFlow<ProductUiState> = _productState.asStateFlow()
+
     init {
         loadProducts()
     }
@@ -30,6 +33,20 @@ class HomeViewModel @Inject constructor(
             } catch (e: Exception){
                 _uiState.value = HomeUiState.Error(
                     message = e.message ?: "Не удалось загрузить товары"
+                )
+            }
+        }
+    }
+
+    fun loadProductInfo(id: Int){
+        viewModelScope.launch {
+            _productState.value = ProductUiState.Loading
+            try {
+                val product = repo.getProductInfo(id)
+                _productState.value = ProductUiState.Content(product)
+            } catch (e: Exception){
+                _productState.value = ProductUiState.Error(
+                    message = e.message ?: "не удалось загрузить товар"
                 )
             }
         }
