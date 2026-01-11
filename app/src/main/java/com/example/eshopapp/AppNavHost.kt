@@ -17,12 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.eshopapp.presentation.cart.CartScreen
 import com.example.eshopapp.presentation.catalog.CatalogScreen
+import com.example.eshopapp.presentation.catalog.ProductInfo
 import com.example.eshopapp.presentation.home.HomeScreen
 import com.example.eshopapp.presentation.profile.ProfileScreen
 
@@ -31,6 +34,12 @@ sealed class Route(val path: String) {
     data object Category : Route("category")
     data object Cart : Route("cart")
     data object Profile : Route("profile")
+
+    //побочные
+    data object ProductInfo : Route("product/{id}"){
+        fun createRoute(id: Int) = "product/$id"
+        const val ARG_ID = "id"
+    }
 }
 data class BottomItem(
     val route: Route,
@@ -85,11 +94,32 @@ fun AppNavHost() {
             startDestination = Route.Home.path,
             modifier = Modifier.padding(innerPadding)
         ){
-            composable(Route.Home.path){ HomeScreen() }
-            //      Потом изменить каталог на категории
+            composable(Route.Home.path) {
+                HomeScreen(
+                    onProductClick = { id ->
+                        navController.navigate(Route.ProductInfo.createRoute(id))
+                    }
+                )
+            }
+
+            //Потом изменить каталог на категории
             composable(Route.Category.path){ CatalogScreen() }
             composable(Route.Cart.path){ CartScreen() }
             composable(Route.Profile.path){ ProfileScreen() }
+
+            //побочные
+            composable(
+                route = Route.ProductInfo.path,
+                arguments = listOf(navArgument(Route.ProductInfo.ARG_ID){
+                    type = NavType.IntType
+                })
+            ){ backStackEntry ->
+                val id = backStackEntry.arguments?.getInt(Route.ProductInfo.ARG_ID) ?: return@composable
+                ProductInfo(
+                    productId = id,
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
         }
     }
 }

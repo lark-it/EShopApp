@@ -12,4 +12,9 @@ class ProductRepository @Inject constructor(
         val response = api.getProducts()
         return response.products.map { it.toDomain() }
     }
+
+    suspend fun getProductInfo(id: Int): Product{
+        val product = api.getProductInfo(id)
+        return product.toDomain()
+    }
 }
