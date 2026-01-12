@@ -10,8 +10,11 @@ fun ProductDto.toDomain(): Product =
     Product(
         id = id,
         title = title,
+        description = description,
         category = category,
         price = price,
+        rating = rating,
+        tags = tags,
         image = thumbnail
     )
 
