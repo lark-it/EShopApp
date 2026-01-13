@@ -8,5 +8,12 @@ data class Product (
     val rating: Double,
     val price: Double,
     val tags: List<String>,
+    val reviews: List<Review>,
     val image: String
+)
+
+data class Review(
+    val rating: Int,
+    val comment: String,
+    val name: String
 )

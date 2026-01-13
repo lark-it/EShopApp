@@ -2,9 +2,10 @@ package com.example.eshopapp.data.mapper
 
 import com.example.eshopapp.data.network.dto.CategoryDto
 import com.example.eshopapp.data.network.dto.ProductDto
+import com.example.eshopapp.data.network.dto.ReviewsDto
 import com.example.eshopapp.domain.model.Category
 import com.example.eshopapp.domain.model.Product
-import kotlin.Int
+import com.example.eshopapp.domain.model.Review
 
 fun ProductDto.toDomain(): Product =
     Product(
@@ -15,9 +16,15 @@ fun ProductDto.toDomain(): Product =
         price = price,
         rating = rating,
         tags = tags,
+        reviews = reviews.map { it.toDomain() },
         image = thumbnail
     )
-
+fun ReviewsDto.toDomain(): Review =
+    Review(
+        rating = rating,
+        comment = comment,
+        name = reviewerName
+    )
 fun CategoryDto.toDomain(): Category =
     Category(
         name = name,

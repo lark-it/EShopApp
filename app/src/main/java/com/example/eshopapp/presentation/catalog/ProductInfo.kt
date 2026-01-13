@@ -1,6 +1,7 @@
 package com.example.eshopapp.presentation.catalog
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.eshopapp.R
 import com.example.eshopapp.domain.model.Product
+import com.example.eshopapp.domain.model.Review
 import com.example.eshopapp.presentation.home.HomeViewModel
 import com.example.eshopapp.presentation.home.ProductUiState
 
@@ -148,6 +151,26 @@ fun ProductInfoContent(
                     }
                 }
             }
+            item{
+                product.reviews.forEach { review ->
+                    ReviewCard(review)
+                }
+            }
         }
     }
+}
+@Composable
+fun ReviewCard(review: Review){
+    Card(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            Text(review.name)
+            Text(review.rating.toString())
+            Text(review.comment)
+        }
+    }
+
 }

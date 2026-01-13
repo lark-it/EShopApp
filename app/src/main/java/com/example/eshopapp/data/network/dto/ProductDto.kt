@@ -19,13 +19,12 @@ data class ProductDto(
     val price: Double,
     val rating: Double,
     val tags: List<String>,
-//    val reviews: List<ReviewsDto>,
+    val reviews: List<ReviewsDto>,
     val thumbnail: String
 )
-
-//data class ReviewsDto(
-//    val rating: Int,
-//    val comment: String,
-//    //добавить дату не забыть
-//    val reviewerName: String
-//)
+@JsonClass(generateAdapter = true)
+data class ReviewsDto(
+    val rating: Int,
+    val comment: String,
+    val reviewerName: String
+)
