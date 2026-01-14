@@ -29,7 +29,8 @@ class HomeViewModel @Inject constructor(
             _uiState.value = HomeUiState.Loading
             try {
                 val products = repo.getProducts()
-                _uiState.value = HomeUiState.Content(products)
+                val categories = repo.getCategories()
+                _uiState.value = HomeUiState.Content(products, categories)
             } catch (e: Exception){
                 _uiState.value = HomeUiState.Error(
                     message = e.message ?: "Не удалось загрузить товары"

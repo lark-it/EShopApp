@@ -31,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.eshopapp.R
 import androidx.compose.foundation.lazy.items
@@ -44,11 +43,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import com.example.eshopapp.domain.model.Category
 import com.example.eshopapp.domain.model.Product
-import com.example.eshopapp.ui.theme.EShopAppTheme
 
 
 @Composable
@@ -58,22 +55,14 @@ fun HomeScreen(
 ) {
     val state = viewModel.uiState.collectAsState().value
 
-    val fakePopularCategories = remember {
-        listOf(
-            CategoryUiModel(1, "Смартфоны", R.drawable.ic_phone),
-            CategoryUiModel(2, "Ноутбуки", R.drawable.ic_laptop),
-            CategoryUiModel(3, "Продукты", R.drawable.ic_grocery),
-            CategoryUiModel(4, "Парфюм", R.drawable.ic_perfume),
-            CategoryUiModel(5, "Мебель", R.drawable.ic_sofa),
-        )
-    }
     when (state) {
         is HomeUiState.Loading -> {
             Text("Загрузка")
         }
         is HomeUiState.Content -> {
             val products = state.products
-            HomeScreenContent(onProductClick, products, fakePopularCategories)
+            val categories = state.categories
+            HomeScreenContent(onProductClick, products, categories)
         }
         is HomeUiState.Error -> {
             Text(text = state.message)
@@ -85,7 +74,7 @@ fun HomeScreen(
 fun HomeScreenContent(
         onProductClick: (Int) -> Unit,
         products: List<Product>,
-        fakePopularCategories: List<CategoryUiModel>
+        categories: List<Category>
 ){
     val productRows = products.chunked(2)
 
@@ -97,7 +86,7 @@ fun HomeScreenContent(
             SimpleSearchBar()
         }
         item{
-            PopularCategory(fakePopularCategories)
+            PopularCategory(categories)
         }
         item{
             Box(Modifier
@@ -156,7 +145,7 @@ fun SimpleSearchBar(){
 
 }
 @Composable
-fun PopularCategory(categories: List<CategoryUiModel>){
+fun PopularCategory(categories: List<Category>){
     Column(
         modifier = Modifier
     ) {
@@ -181,11 +170,10 @@ fun PopularCategory(categories: List<CategoryUiModel>){
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
             items(
-                items = categories,
-                key = {it.id}
-            ){ fakeCategory ->
+                items = categories
+            ){ category ->
                 PopularCategoryCard(
-                    category = fakeCategory
+                    category = category
                 )
             }
         }
@@ -193,11 +181,11 @@ fun PopularCategory(categories: List<CategoryUiModel>){
 }
 
 @Composable
-fun PopularCategoryCard(category: CategoryUiModel){
+fun PopularCategoryCard(category: Category){
     Card(
         modifier = Modifier
             .width(120.dp)
-            .height(160.dp),
+            .aspectRatio(0.6f),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp
@@ -211,17 +199,17 @@ fun PopularCategoryCard(category: CategoryUiModel){
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = category.title,
+                    text = category.name,
                     maxLines = 2,
                     textAlign = TextAlign.Center
                 )
             }
             Image(
-                painter = painterResource(id = category.image),
+                painter = painterResource(R.drawable.img_placeholder),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp)
+                    .aspectRatio(1f)
             )
         }
     }
