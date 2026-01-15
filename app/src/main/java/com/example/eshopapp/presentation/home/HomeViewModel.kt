@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -14,7 +15,16 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val repo: ProductRepository
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
+    private val _uiState = MutableStateFlow<HomeUiState>(
+        HomeUiState(
+            emptyList(),
+            productsLoading = false,
+            productsError = null,
+            emptyList(),
+            categoriesLoading = false,
+            categoriesError = null
+        )
+    )
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     private val _productState = MutableStateFlow<ProductUiState>(ProductUiState.Loading)
@@ -22,19 +32,47 @@ class HomeViewModel @Inject constructor(
 
     init {
         loadProducts()
+        loadCategories()
     }
 
     fun loadProducts() {
+        _uiState.update { it.copy(
+            productsLoading = true
+        ) }
+
         viewModelScope.launch {
-            _uiState.value = HomeUiState.Loading
             try {
                 val products = repo.getProducts()
-                val categories = repo.getCategories()
-                _uiState.value = HomeUiState.Content(products, categories)
+                _uiState.update { it.copy(
+                    products = products,
+                    productsLoading = false
+                ) }
             } catch (e: Exception){
-                _uiState.value = HomeUiState.Error(
-                    message = e.message ?: "Не удалось загрузить товары"
-                )
+                _uiState.update { it.copy(
+                    productsLoading = false,
+                    productsError = e.message ?: "Не удалось загрузить товары"
+                ) }
+            }
+        }
+    }
+
+    fun loadCategories() {
+        _uiState.update { it.copy(
+            categoriesLoading = true
+        ) }
+
+        viewModelScope.launch {
+            try {
+                val categories = repo.getCategories()
+                _uiState.update { it.copy(
+                    categories = categories,
+                    categoriesLoading = false
+                ) }
+            } catch (e: Exception){
+                _uiState.update { it.copy(
+                    categoriesLoading = false,
+                    categoriesError = e.message ?: "Не удалось загрузить категории"
+                ) }
             }
         }
     }

@@ -37,6 +37,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
@@ -53,30 +54,8 @@ fun HomeScreen(
     onProductClick: (Int) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val state = viewModel.uiState.collectAsState().value
-
-    when (state) {
-        is HomeUiState.Loading -> {
-            Text("Загрузка")
-        }
-        is HomeUiState.Content -> {
-            val products = state.products
-            val categories = state.categories
-            HomeScreenContent(onProductClick, products, categories)
-        }
-        is HomeUiState.Error -> {
-            Text(text = state.message)
-            Button(onClick = viewModel::loadProducts) { Text("Повторить") }
-        }
-    }
-}
-@Composable
-fun HomeScreenContent(
-        onProductClick: (Int) -> Unit,
-        products: List<Product>,
-        categories: List<Category>
-){
-    val productRows = products.chunked(2)
+    val state by viewModel.uiState.collectAsState()
+    val productRows = state.products.chunked(2)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -86,26 +65,75 @@ fun HomeScreenContent(
             SimpleSearchBar()
         }
         item{
-            PopularCategory(categories)
-        }
-        item{
-            Box(Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ){
+                Text(
+                    "Популярные категории:",
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    "Больше:",
+                    style = MaterialTheme.typography.titleSmall
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+
+            when{
+                state.categoriesLoading -> {
+                    CircularProgressIndicator()
+                }
+
+                state.categoriesError != null -> {
+                    Text(state.categoriesError ?: "")
+                    Button(onClick = { viewModel.loadCategories() }) {
+                        Text("Повторить")
+                    }
+                }
+
+                else -> {
+                    PopularCategory(state.categories)
+                }
+            }
+        }
+        item {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
                 Text(
                     "Рекомендуем:",
                     style = MaterialTheme.typography.titleLarge
                 )
             }
+            when {
+                state.productsLoading -> {
+                    CircularProgressIndicator()
+                }
+
+                state.productsError != null -> {
+                    Text(state.productsError ?: "")
+                    Button(onClick = { viewModel.loadProducts() }) {
+                        Text("Повторить")
+                    }
+                }
+
+                else -> {
+
+                }
+            }
         }
-        items(
-            productRows
-        ){ rowItems ->
-            RecommendedRow(
-                onProductClick,
-                rowItems
-            )
+        if (!state.productsLoading && state.productsError == null) {
+            items(productRows) { row ->
+                RecommendedRow(
+                    onProductClick = onProductClick,
+                    products = row
+                )
+            }
         }
     }
 }
@@ -146,36 +174,16 @@ fun SimpleSearchBar(){
 }
 @Composable
 fun PopularCategory(categories: List<Category>){
-    Column(
-        modifier = Modifier
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ){
-            Text(
-                "Популярные категории:",
-                style = MaterialTheme.typography.titleLarge
+        items(
+            items = categories
+        ){ category ->
+            PopularCategoryCard(
+                category = category
             )
-            Text(
-                "Больше:",
-                style = MaterialTheme.typography.titleSmall
-            )
-        }
-        Spacer(Modifier.height(16.dp))
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp)
-        ) {
-            items(
-                items = categories
-            ){ category ->
-                PopularCategoryCard(
-                    category = category
-                )
-            }
         }
     }
 }
