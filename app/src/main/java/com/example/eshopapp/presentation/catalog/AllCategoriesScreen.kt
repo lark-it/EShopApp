@@ -14,37 +14,36 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.eshopapp.R
-import com.example.eshopapp.presentation.home.CategoryUiModel
+import com.example.eshopapp.domain.model.Category
 import com.example.eshopapp.presentation.home.SimpleSearchBar
 
 @Composable
-fun AllCategoriesScreen() {
-    val fakePopularCategories = remember {
-        listOf(
-            CategoryUiModel(1, "Смартфоны", R.drawable.ic_phone),
-            CategoryUiModel(2, "Ноутбуки", R.drawable.ic_laptop),
-            CategoryUiModel(3, "Продукты", R.drawable.ic_grocery),
-            CategoryUiModel(4, "Парфюм", R.drawable.ic_perfume),
-            CategoryUiModel(5, "Мебель", R.drawable.ic_sofa),
-        )
-    }
+fun AllCategoriesScreen(
+    viewModel: CatalogViewModel = hiltViewModel()
+) {
+    val state by viewModel.uiState.collectAsState()
+
     LazyVerticalGrid(
-    modifier = Modifier.fillMaxSize(),
-    columns = GridCells.Fixed(3),
-    contentPadding = PaddingValues(16.dp),
-    horizontalArrangement = Arrangement.spacedBy(12.dp),
-    verticalArrangement = Arrangement.spacedBy(12.dp)
+        modifier = Modifier.fillMaxSize(),
+        columns = GridCells.Fixed(3),
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             SimpleSearchBar()
@@ -52,16 +51,30 @@ fun AllCategoriesScreen() {
         item(span = { GridItemSpan(maxLineSpan) }) {
             Text("Все категории")
         }
-        items(
-            items = fakePopularCategories,
-            key = { it.id }
-        ) { category ->
-            CategoryCard(category)
+        when(val s = state){
+            is CategoryUiState.Loading -> {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    CircularProgressIndicator()
+                }
+            }
+            is CategoryUiState.Content -> {
+                items(s.categories) { category ->
+                    CategoryCard(category)
+                }
+            }
+            is CategoryUiState.Error -> {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Text(s.message)
+                    Button(onClick = { viewModel.getCategories() }){
+                        Text("Повторить")
+                    }
+                }
+            }
         }
     }
 }
 @Composable
-fun CategoryCard(category: CategoryUiModel){
+fun CategoryCard(category: Category){
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp)
@@ -74,22 +87,17 @@ fun CategoryCard(category: CategoryUiModel){
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = category.title,
+                    text = category.name,
                     maxLines = 2,
                     textAlign = TextAlign.Center
                 )
             }
             Image(
-                painter = painterResource(id = category.image),
+                painter = painterResource(R.drawable.img_placeholder),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
             )
         }
     }
-}
-@Preview
-@Composable
-fun AllCategoriesScreenPreview(){
-    AllCategoriesScreen()
 }
