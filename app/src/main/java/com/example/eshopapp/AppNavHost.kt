@@ -24,6 +24,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.eshopapp.presentation.cart.CartScreen
+import com.example.eshopapp.presentation.catalog.AllCategoriesScreen
 import com.example.eshopapp.presentation.catalog.CatalogScreen
 import com.example.eshopapp.presentation.catalog.ProductInfo
 import com.example.eshopapp.presentation.home.HomeScreen
@@ -103,7 +104,7 @@ fun AppNavHost() {
             }
 
             //Потом изменить каталог на категории
-            composable(Route.Category.path){ CatalogScreen() }
+            composable(Route.Category.path){ AllCategoriesScreen() }
             composable(Route.Cart.path){ CartScreen() }
             composable(Route.Profile.path){ ProfileScreen() }
 
