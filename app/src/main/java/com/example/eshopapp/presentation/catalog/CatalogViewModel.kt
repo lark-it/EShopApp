@@ -21,6 +21,11 @@ class CatalogViewModel @Inject constructor(
     )
     val uiState: StateFlow<CategoryUiState> = _uiState.asStateFlow()
 
+    private val _catalogState = MutableStateFlow<CatalogUiState>(
+        CatalogUiState.Loading
+    )
+    val catalogState = _catalogState
+
     init {
         getCategories()
     }
@@ -38,6 +43,21 @@ class CatalogViewModel @Inject constructor(
                 _uiState.update {
                     CategoryUiState.Error(e.message ?: "беда")
                 }
+            }
+        }
+    }
+
+    fun getCategoryProducts(category: String){
+        _catalogState.update { CatalogUiState.Loading }
+
+        viewModelScope.launch {
+            try {
+                val products = repo.getCategoryProducts(category)
+                _catalogState.update {
+                    CatalogUiState.Content(products)
+                }
+            } catch (e: Exception){
+                _catalogState.update { CatalogUiState.Error(e.message ?: "Ошибка") }
             }
         }
     }
