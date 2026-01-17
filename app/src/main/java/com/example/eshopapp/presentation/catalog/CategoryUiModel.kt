@@ -9,3 +9,9 @@ sealed interface CategoryUiState{
     data class Content(val categories: List<Category>) : CategoryUiState
     data class Error(val message: String) : CategoryUiState
 }
+
+sealed interface CatalogUiState{
+    data object Loading : CatalogUiState
+    data class Content(val products: List<Product>) : CatalogUiState
+    data class Error(val message: String) : CatalogUiState
+}

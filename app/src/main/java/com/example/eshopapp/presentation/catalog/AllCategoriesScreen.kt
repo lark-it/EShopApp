@@ -28,13 +28,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.eshopapp.R
 import com.example.eshopapp.domain.model.Category
 import com.example.eshopapp.presentation.home.SimpleSearchBar
 
 @Composable
 fun AllCategoriesScreen(
-    viewModel: CatalogViewModel = hiltViewModel()
+    viewModel: CatalogViewModel = hiltViewModel(),
+    onCategoryClick: (String) -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -59,7 +61,10 @@ fun AllCategoriesScreen(
             }
             is CategoryUiState.Content -> {
                 items(s.categories) { category ->
-                    CategoryCard(category)
+                    CategoryCard(
+                        category = category,
+                        onClick = { onCategoryClick(category.name) }
+                    )
                 }
             }
             is CategoryUiState.Error -> {
@@ -74,10 +79,14 @@ fun AllCategoriesScreen(
     }
 }
 @Composable
-fun CategoryCard(category: Category){
+fun CategoryCard(
+    category: Category,
+    onClick: () -> Unit
+){
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(12.dp),
+        onClick = onClick
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier
