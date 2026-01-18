@@ -103,6 +103,9 @@ fun AppNavHost() {
                 HomeScreen(
                     onProductClick = { id ->
                         navController.navigate(Route.ProductInfo.createRoute(id))
+                    },
+                    onCategoryClick = { categoryName ->
+                        navController.navigate(Route.CategoryProducts.createRoute(categoryName))
                     }
                 )
             }
@@ -139,7 +142,10 @@ fun AppNavHost() {
             ){ backStackEntry ->
                 val category = backStackEntry.arguments?.getString(Route.CategoryProducts.ARG_NAME) ?: return@composable
                 CatalogScreen(
-                    category = category
+                    category = category,
+                    onProductClick = { id ->
+                        navController.navigate(Route.ProductInfo.createRoute(id))
+                    }
                 )
             }
         }

@@ -38,6 +38,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
@@ -47,11 +48,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.eshopapp.domain.model.Category
 import com.example.eshopapp.domain.model.Product
+import com.example.eshopapp.presentation.catalog.CategoryCard
 
 
 @Composable
 fun HomeScreen(
     onProductClick: (Int) -> Unit,
+    onCategoryClick: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -95,7 +98,10 @@ fun HomeScreen(
                 }
 
                 else -> {
-                    PopularCategory(state.categories)
+                    PopularCategory(
+                        state.categories,
+                        onCategoryClick
+                    )
                 }
             }
         }
@@ -146,7 +152,7 @@ fun SimpleSearchBar(){
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
-        SearchBar(
+        DockedSearchBar(
             modifier = Modifier.align(Alignment.TopCenter),
             inputField = {
                 SearchBarDefaults.InputField(
@@ -173,7 +179,10 @@ fun SimpleSearchBar(){
 
 }
 @Composable
-fun PopularCategory(categories: List<Category>){
+fun PopularCategory(
+    categories: List<Category>,
+    onCategoryClick:(String) -> Unit
+){
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(horizontal = 16.dp)
@@ -181,43 +190,12 @@ fun PopularCategory(categories: List<Category>){
         items(
             items = categories
         ){ category ->
-            PopularCategoryCard(
-                category = category
-            )
-        }
-    }
-}
-
-@Composable
-fun PopularCategoryCard(category: Category){
-    Card(
-        modifier = Modifier
-            .width(120.dp)
-            .aspectRatio(0.6f),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        )
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Box(modifier = Modifier
-                .height(40.dp)
-                .fillMaxWidth()
-                .padding(8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = category.name,
-                    maxLines = 2,
-                    textAlign = TextAlign.Center
-                )
-            }
-            Image(
-                painter = painterResource(R.drawable.img_placeholder),
-                contentDescription = null,
+            CategoryCard(
+                category = category,
+                onClick = { onCategoryClick(category.name) },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
+                    .width(120.dp)
+                    .aspectRatio(0.6f)
             )
         }
     }
@@ -247,61 +225,6 @@ fun RecommendedRow(
             )
         } else {
             Spacer(modifier = Modifier.weight(1f))
-        }
-    }
-}
-
-@Composable
-fun ProductCard(
-    onProductClick: (Int) -> Unit,
-    product: Product,
-    modifier: Modifier = Modifier
-){
-    Card(
-        modifier = modifier
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        ),
-        onClick = { onProductClick(product.id) }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            AsyncImage(
-                model = product.image,
-                placeholder = painterResource(R.drawable.img_placeholder),
-                error = painterResource(R.drawable.img_error),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-            )
-            Column(
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Text(
-                    product.price.toString() + "₽",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    product.title,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 2,
-                    minLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(onClick = {}) {
-                    Text("В корзину")
-                }
-            }
         }
     }
 }
