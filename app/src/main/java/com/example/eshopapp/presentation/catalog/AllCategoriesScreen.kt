@@ -63,7 +63,8 @@ fun AllCategoriesScreen(
                 items(s.categories) { category ->
                     CategoryCard(
                         category = category,
-                        onClick = { onCategoryClick(category.name) }
+                        onClick = { onCategoryClick(category.name) },
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
@@ -75,38 +76,6 @@ fun AllCategoriesScreen(
                     }
                 }
             }
-        }
-    }
-}
-@Composable
-fun CategoryCard(
-    category: Category,
-    onClick: () -> Unit
-){
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        onClick = onClick
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Box(modifier = Modifier
-                .height(40.dp)
-                .fillMaxWidth()
-                .padding(8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = category.name,
-                    maxLines = 2,
-                    textAlign = TextAlign.Center
-                )
-            }
-            Image(
-                painter = painterResource(R.drawable.img_placeholder),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
         }
     }
 }

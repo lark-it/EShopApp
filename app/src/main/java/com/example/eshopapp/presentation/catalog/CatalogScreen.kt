@@ -34,7 +34,8 @@ import com.example.eshopapp.ui.theme.EShopAppTheme
 @Composable
 fun CatalogScreen(
     viewModel: CatalogViewModel = hiltViewModel(),
-    category: String
+    category: String,
+    onProductClick: (Int) -> Unit
 ) {
     val state by viewModel.catalogState.collectAsState()
 
@@ -53,7 +54,10 @@ fun CatalogScreen(
                 CircularProgressIndicator()
             }
             is CatalogUiState.Content -> {
-                AllCategoryProducts(products = s.products)
+                AllCategoryProducts(
+                    products = s.products,
+                    onProductClick
+                )
             }
             is CatalogUiState.Error -> {
                 Text("Ошибка: ${s.message}")
@@ -75,7 +79,10 @@ fun FiltersHeader(){
     }
 }
 @Composable
-fun AllCategoryProducts(products: List<Product>){
+fun AllCategoryProducts(
+    products: List<Product>,
+    onProductClick:(Int)-> Unit
+){
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
         columns = GridCells.Fixed(2),
@@ -87,7 +94,10 @@ fun AllCategoryProducts(products: List<Product>){
             items = products,
             key = { it.id }
         ) { product ->
-            ProductCard(onProductClick = { }, product)
+            ProductCard(
+                onProductClick = { onProductClick(product.id) },
+                product
+            )
         }
     }
 }
