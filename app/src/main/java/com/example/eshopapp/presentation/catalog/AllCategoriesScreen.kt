@@ -63,7 +63,7 @@ fun AllCategoriesScreen(
                 items(s.categories) { category ->
                     CategoryCard(
                         category = category,
-                        onClick = { onCategoryClick(category.name) },
+                        onClick = { onCategoryClick(category.slug) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

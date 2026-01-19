@@ -41,9 +41,9 @@ sealed class Route(val path: String) {
         fun createRoute(id: Int) = "product/$id"
         const val ARG_ID = "id"
     }
-    data object CategoryProducts : Route("categories/{categoryName}"){
-        fun createRoute(categoryName: String) = "categories/$categoryName"
-        const val ARG_NAME = "categoryName"
+    data object CategoryProducts : Route("categories/{slug}"){
+        fun createRoute(slug: String) = "categories/$slug"
+        const val ARG_NAME = "slug"
     }
 }
 data class BottomItem(
@@ -104,8 +104,8 @@ fun AppNavHost() {
                     onProductClick = { id ->
                         navController.navigate(Route.ProductInfo.createRoute(id))
                     },
-                    onCategoryClick = { categoryName ->
-                        navController.navigate(Route.CategoryProducts.createRoute(categoryName))
+                    onCategoryClick = { slug ->
+                        navController.navigate(Route.CategoryProducts.createRoute(slug))
                     }
                 )
             }
@@ -113,8 +113,8 @@ fun AppNavHost() {
             //Потом изменить каталог на категории
             composable(Route.Category.path){
                 AllCategoriesScreen(
-                    onCategoryClick = { categoryName ->
-                        navController.navigate(Route.CategoryProducts.createRoute(categoryName))
+                    onCategoryClick = { slug ->
+                        navController.navigate(Route.CategoryProducts.createRoute(slug))
                     }
                 )
             }
@@ -145,7 +145,8 @@ fun AppNavHost() {
                     category = category,
                     onProductClick = { id ->
                         navController.navigate(Route.ProductInfo.createRoute(id))
-                    }
+                    },
+                    onBackClick = { navController.popBackStack() }
                 )
             }
         }

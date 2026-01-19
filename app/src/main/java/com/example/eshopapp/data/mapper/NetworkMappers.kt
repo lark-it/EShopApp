@@ -28,5 +28,5 @@ fun ReviewsDto.toDomain(): Review =
 fun CategoryDto.toDomain(): Category =
     Category(
         name = name,
-        url = url
+        slug = slug
     )
