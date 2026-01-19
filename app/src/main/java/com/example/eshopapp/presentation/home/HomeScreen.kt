@@ -192,7 +192,7 @@ fun PopularCategory(
         ){ category ->
             CategoryCard(
                 category = category,
-                onClick = { onCategoryClick(category.name) },
+                onClick = { onCategoryClick(category.slug) },
                 modifier = Modifier
                     .width(120.dp)
                     .aspectRatio(0.6f)
