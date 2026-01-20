@@ -1,9 +1,11 @@
 package com.example.eshopapp.data.repository
 
 import com.example.eshopapp.data.mapper.toDomain
+import com.example.eshopapp.data.mapper.toUi
 import com.example.eshopapp.data.network.ApiService
 import com.example.eshopapp.domain.model.Category
 import com.example.eshopapp.domain.model.Product
+import com.example.eshopapp.presentation.catalog.CategoryCardUi
 import javax.inject.Inject
 
 class ProductRepository @Inject constructor(
@@ -13,12 +15,11 @@ class ProductRepository @Inject constructor(
         val response = api.getProducts()
         return response.products.map { it.toDomain() }
     }
-    suspend fun getCategories(): List<Category>{
+    suspend fun getCategories(): List<CategoryCardUi>{
         //не забыть добавить фильтры чтобы отличалось от каталога
-        val response = api.getCategories()
-        return response.map {it.toDomain()}
+        val response = api.getCategories().map { it.toDomain() }
+        return response.map {it.toUi()}
     }
-
     suspend fun getProductInfo(id: Int): Product{
         val product = api.getProductInfo(id)
         return product.toDomain()

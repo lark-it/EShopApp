@@ -6,7 +6,7 @@ import com.example.eshopapp.domain.model.Product
 
 sealed interface CategoryUiState{
     data object Loading : CategoryUiState
-    data class Content(val categories: List<Category>) : CategoryUiState
+    data class Content(val categories: List<CategoryCardUi>) : CategoryUiState
     data class Error(val message: String) : CategoryUiState
 }
 
