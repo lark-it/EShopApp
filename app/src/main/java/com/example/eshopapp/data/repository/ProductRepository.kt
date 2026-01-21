@@ -15,11 +15,6 @@ class ProductRepository @Inject constructor(
         val response = api.getProducts()
         return response.products.map { it.toDomain() }
     }
-    suspend fun getCategories(): List<CategoryCardUi>{
-        //не забыть добавить фильтры чтобы отличалось от каталога
-        val response = api.getCategories().map { it.toDomain() }
-        return response.map {it.toUi()}
-    }
     suspend fun getProductInfo(id: Int): Product{
         val product = api.getProductInfo(id)
         return product.toDomain()
