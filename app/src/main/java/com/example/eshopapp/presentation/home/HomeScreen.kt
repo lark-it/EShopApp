@@ -37,6 +37,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.eshopapp.domain.model.Category
 import com.example.eshopapp.domain.model.Product
+import com.example.eshopapp.presentation.catalog.CatalogViewModel
 import com.example.eshopapp.presentation.catalog.CategoryCard
 import com.example.eshopapp.presentation.catalog.CategoryCardUi
 

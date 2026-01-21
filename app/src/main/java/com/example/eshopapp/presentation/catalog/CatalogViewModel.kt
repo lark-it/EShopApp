@@ -4,12 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.eshopapp.data.repository.CatalogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import javax.inject.Inject
 
 
@@ -31,24 +33,15 @@ class CatalogViewModel @Inject constructor(
         getCategories()
     }
 
-    fun getCategories(){
+    fun getCategories() {
         _uiState.value = CategoryUiState.Loading
 
         viewModelScope.launch {
             try {
-                val categories = repo.getCategories()
+                val categories = repo.getCategoriesWithImages()
+                _uiState.value = CategoryUiState.Content(categories)
 
-                val cards = categories.map {
-                    CategoryCardUi(
-                        slug = it.slug,
-                        name = it.name,
-                        imageUrl = null
-                    )
-                }
-                _uiState.value = CategoryUiState.Content(cards)
-
-                loadCategoryImage(cards)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _uiState.value = CategoryUiState.Error(e.message ?: "беда")
             }
         }
@@ -65,24 +58,6 @@ class CatalogViewModel @Inject constructor(
                 }
             } catch (e: Exception){
                 _catalogState.update { CatalogUiState.Error(e.message ?: "Ошибка") }
-            }
-        }
-    }
-    fun loadCategoryImage(cards: List<CategoryCardUi>){
-        viewModelScope.launch {
-            cards.forEach { card ->
-                val topProduct = repo.getTopProductInCategory(card.slug)
-                val image = topProduct.image
-
-                val current = _uiState.value
-                if (current is CategoryUiState.Content) {
-                    val updated = current.categories.map {
-                        if (it.slug == card.slug) {
-                            it.copy(imageUrl = image)
-                        } else it
-                    }
-                    _uiState.value = CategoryUiState.Content(updated)
-                }
             }
         }
     }

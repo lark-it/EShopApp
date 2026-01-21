@@ -6,6 +6,11 @@ import com.example.eshopapp.data.network.ApiService
 import com.example.eshopapp.domain.model.Category
 import com.example.eshopapp.domain.model.Product
 import com.example.eshopapp.presentation.catalog.CategoryCardUi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import javax.inject.Inject
 
 class CatalogRepository @Inject constructor(
@@ -25,5 +30,25 @@ class CatalogRepository @Inject constructor(
         val products = api.getCategoryProducts(slug).products
         val topProductDto = products.maxBy { it.rating }
         return topProductDto.toDomain()
+    }
+
+    suspend fun getCategoriesWithImages(
+        limit: Int? = null,
+    ): List<CategoryCardUi> = coroutineScope {
+        val allCategories = getCategories()
+        val limitCategories = limit?.let { allCategories.take(it) } ?: allCategories
+
+        val semaphore = Semaphore(permits = 3)
+
+        limitCategories.map { category ->
+            async {
+                semaphore.withPermit {
+                    val imageUrl = runCatching {
+                        getTopProductInCategory(category.slug).image
+                    }.getOrNull()
+                    category.copy(imageUrl = imageUrl)
+                }
+            }
+        }.awaitAll()
     }
 }

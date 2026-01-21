@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,6 +20,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import com.example.eshopapp.R
 import com.example.eshopapp.domain.model.Category
 
@@ -45,15 +50,36 @@ fun CategoryCard(
                     textAlign = TextAlign.Center
                 )
             }
-            AsyncImage(
+            SubcomposeAsyncImage(
                 model = category.imageUrl,
                 contentDescription = null,
-                placeholder = painterResource(R.drawable.img_placeholder),
-                error = painterResource(R.drawable.img_error),
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
-            )
+            ){
+                when (painter.state){
+                    is AsyncImagePainter.State.Loading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ){
+                            CircularProgressIndicator(
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                    is AsyncImagePainter.State.Error -> {
+                        Image(
+                            painter = painterResource(R.drawable.img_placeholder),
+                            contentDescription = null
+                        )
+                    }
+                    else -> {
+                        SubcomposeAsyncImageContent()
+                    }
+                }
+            }
         }
     }
 }
