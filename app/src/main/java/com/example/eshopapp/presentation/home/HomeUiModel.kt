@@ -1,8 +1,7 @@
 package com.example.eshopapp.presentation.home
 
-import com.example.eshopapp.domain.model.Category
 import com.example.eshopapp.domain.model.Product
-import com.example.eshopapp.presentation.catalog.CategoryCardUi
+import com.example.eshopapp.presentation.category.CategoryCardUi
 
 data class HomeUiState(
     val products: List<Product>,

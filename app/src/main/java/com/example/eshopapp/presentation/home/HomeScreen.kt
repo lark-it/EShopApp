@@ -35,11 +35,9 @@ import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.eshopapp.domain.model.Category
 import com.example.eshopapp.domain.model.Product
-import com.example.eshopapp.presentation.catalog.CatalogViewModel
-import com.example.eshopapp.presentation.catalog.CategoryCard
-import com.example.eshopapp.presentation.catalog.CategoryCardUi
+import com.example.eshopapp.presentation.category.CategoryCard
+import com.example.eshopapp.presentation.category.CategoryCardUi
 
 
 @Composable

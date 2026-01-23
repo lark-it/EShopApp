@@ -1,23 +1,20 @@
-package com.example.eshopapp.presentation.catalog
+package com.example.eshopapp.presentation.category
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.eshopapp.data.repository.CatalogRepository
+import com.example.eshopapp.data.repository.CategoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.sync.withPermit
 import javax.inject.Inject
 
 
 @HiltViewModel
-class CatalogViewModel @Inject constructor(
-    val repo: CatalogRepository
+class CategoryViewModel @Inject constructor(
+    val repo: CategoryRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<CategoryUiState>(
         CategoryUiState.Loading

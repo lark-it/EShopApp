@@ -16,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -24,9 +23,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.eshopapp.presentation.cart.CartScreen
-import com.example.eshopapp.presentation.catalog.AllCategoriesScreen
-import com.example.eshopapp.presentation.catalog.CatalogScreen
-import com.example.eshopapp.presentation.catalog.ProductInfo
+import com.example.eshopapp.presentation.category.AllCategoriesScreen
+import com.example.eshopapp.presentation.category.CatalogScreen
+import com.example.eshopapp.presentation.category.ProductInfo
 import com.example.eshopapp.presentation.home.HomeScreen
 import com.example.eshopapp.presentation.profile.ProfileScreen
 

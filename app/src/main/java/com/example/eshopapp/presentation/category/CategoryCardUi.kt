@@ -1,4 +1,4 @@
-package com.example.eshopapp.presentation.catalog
+package com.example.eshopapp.presentation.category
 
 data class CategoryCardUi(
     val name: String,

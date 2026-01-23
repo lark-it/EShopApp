@@ -1,4 +1,4 @@
-package com.example.eshopapp.presentation.catalog
+package com.example.eshopapp.presentation.category
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -19,12 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import com.example.eshopapp.R
-import com.example.eshopapp.domain.model.Category
 
 @Composable
 fun CategoryCard(

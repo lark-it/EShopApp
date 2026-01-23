@@ -2,9 +2,8 @@ package com.example.eshopapp.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.eshopapp.data.repository.CatalogRepository
+import com.example.eshopapp.data.repository.CategoryRepository
 import com.example.eshopapp.data.repository.ProductRepository
-import com.example.eshopapp.presentation.catalog.CategoryUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repo: ProductRepository,
-    private val catalogRepo: CatalogRepository
+    private val catalogRepo: CategoryRepository
 
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<HomeUiState>(

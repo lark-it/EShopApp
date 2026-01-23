@@ -1,6 +1,5 @@
-package com.example.eshopapp.presentation.catalog
+package com.example.eshopapp.presentation.category
 
-import com.example.eshopapp.domain.model.Category
 import com.example.eshopapp.domain.model.Product
 
 

@@ -6,7 +6,7 @@ import com.example.eshopapp.data.network.dto.ReviewsDto
 import com.example.eshopapp.domain.model.Category
 import com.example.eshopapp.domain.model.Product
 import com.example.eshopapp.domain.model.Review
-import com.example.eshopapp.presentation.catalog.CategoryCardUi
+import com.example.eshopapp.presentation.category.CategoryCardUi
 
 fun ProductDto.toDomain(): Product =
     Product(
