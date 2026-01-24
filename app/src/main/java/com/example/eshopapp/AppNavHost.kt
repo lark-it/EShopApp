@@ -27,6 +27,7 @@ import com.example.eshopapp.presentation.category.AllCategoriesScreen
 import com.example.eshopapp.presentation.category.CatalogScreen
 import com.example.eshopapp.presentation.category.ProductInfo
 import com.example.eshopapp.presentation.home.HomeScreen
+import com.example.eshopapp.presentation.home.SearchProductScreen
 import com.example.eshopapp.presentation.profile.ProfileScreen
 
 sealed class Route(val path: String) {
@@ -43,6 +44,10 @@ sealed class Route(val path: String) {
     data object CategoryProducts : Route("categories/{slug}"){
         fun createRoute(slug: String) = "categories/$slug"
         const val ARG_NAME = "slug"
+    }
+    data object SearchProducts : Route("search?query={query}"){
+        fun createRoute(query: String) = "search?query=${query}"
+        const val ARG_NAME = "query"
     }
 }
 data class BottomItem(
@@ -105,11 +110,13 @@ fun AppNavHost() {
                     },
                     onCategoryClick = { slug ->
                         navController.navigate(Route.CategoryProducts.createRoute(slug))
+                    },
+                    onSearch = { query ->
+                        navController.navigate(Route.SearchProducts.createRoute(query))
                     }
                 )
             }
 
-            //Потом изменить каталог на категории
             composable(Route.Category.path){
                 AllCategoriesScreen(
                     onCategoryClick = { slug ->
@@ -117,7 +124,9 @@ fun AppNavHost() {
                     }
                 )
             }
+
             composable(Route.Cart.path){ CartScreen() }
+
             composable(Route.Profile.path){ ProfileScreen() }
 
             //побочные
@@ -133,6 +142,7 @@ fun AppNavHost() {
                     onBackClick = { navController.popBackStack() }
                 )
             }
+
             composable(
                 route = Route.CategoryProducts.path,
                 arguments = listOf(navArgument(Route.CategoryProducts.ARG_NAME){
@@ -142,6 +152,22 @@ fun AppNavHost() {
                 val category = backStackEntry.arguments?.getString(Route.CategoryProducts.ARG_NAME) ?: return@composable
                 CatalogScreen(
                     category = category,
+                    onProductClick = { id ->
+                        navController.navigate(Route.ProductInfo.createRoute(id))
+                    },
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = Route.SearchProducts.path,
+                arguments = listOf(navArgument(Route.SearchProducts.ARG_NAME){
+                    type = NavType.StringType
+                })
+            ){ backStackEntry ->
+                val query = backStackEntry.arguments?.getString(Route.SearchProducts.ARG_NAME) ?: return@composable
+                SearchProductScreen(
+                    query = query,
                     onProductClick = { id ->
                         navController.navigate(Route.ProductInfo.createRoute(id))
                     },
