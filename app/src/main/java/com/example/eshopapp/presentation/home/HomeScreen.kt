@@ -44,6 +44,7 @@ import com.example.eshopapp.presentation.category.CategoryCardUi
 fun HomeScreen(
     onProductClick: (Int) -> Unit,
     onCategoryClick: (String) -> Unit,
+    onSearch: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -54,7 +55,9 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item{
-            SimpleSearchBar()
+            SimpleSearchBar(
+                onSearch = onSearch
+            )
         }
         item{
             Row(
@@ -131,41 +134,6 @@ fun HomeScreen(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SimpleSearchBar(){
-    var query by remember { mutableStateOf("") }
-    var expanded by remember { mutableStateOf(false) }
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        DockedSearchBar(
-            modifier = Modifier.align(Alignment.TopCenter),
-            inputField = {
-                SearchBarDefaults.InputField(
-                    query = query,
-                    onQueryChange = { query = it },
-                    onSearch = { },
-                    expanded = expanded,
-                    onExpandedChange = { expanded = it },
-                    placeholder = { Text("Поиск товаров...") },
-                    leadingIcon = {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
-                    },
-                    trailingIcon = {
-                        Icon(Icons.Default.Clear, contentDescription = "Clear")
-                    }
-                )
-            },
-            expanded = expanded,
-            onExpandedChange = { expanded = it }
-        ) {
-
-        }
-    }
-
 }
 @Composable
 fun PopularCategory(

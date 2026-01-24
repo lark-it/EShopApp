@@ -33,9 +33,9 @@ fun AllCategoriesScreen(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            SimpleSearchBar()
-        }
+//        item(span = { GridItemSpan(maxLineSpan) }) {
+//            SimpleSearchBar()
+//        }
         item(span = { GridItemSpan(maxLineSpan) }) {
             Text("Все категории")
         }

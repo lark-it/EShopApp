@@ -16,4 +16,12 @@ class ProductRepository @Inject constructor(
         val product = api.getProductInfo(id)
         return product.toDomain()
     }
+
+    suspend fun searchProducts(
+        query: String,
+        limit: Int
+    ): List<Product>{
+        val response = api.searchProducts(query, limit)
+        return response.products.map { it.toDomain() }
+    }
 }
