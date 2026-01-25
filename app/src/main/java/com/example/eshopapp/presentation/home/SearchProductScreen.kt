@@ -26,11 +26,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.eshopapp.presentation.cart.CartViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchProductScreen(
     viewModel: SearchResultsViewModel = hiltViewModel(),
+    cartVm: CartViewModel,
     query: String,
     onProductClick: (Int) -> Unit,
     onBackClick: () -> Unit
@@ -91,7 +93,8 @@ fun SearchProductScreen(
                 ) { product ->
                     ProductCard(
                         onProductClick = { onProductClick(product.id) },
-                        product = product
+                        product = product,
+                        onAddToCart = {product -> cartVm.addToCart(product) }
                     )
                 }
             }

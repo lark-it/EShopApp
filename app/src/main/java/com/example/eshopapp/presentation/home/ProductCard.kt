@@ -27,7 +27,8 @@ import com.example.eshopapp.domain.model.Product
 fun ProductCard(
     onProductClick: (Int) -> Unit,
     product: Product,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onAddToCart: (Product) -> Unit
 ){
     Card(
         modifier = modifier
@@ -70,7 +71,7 @@ fun ProductCard(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                Button(onClick = {}) {
+                Button(onClick = { onAddToCart(product) }) {
                     Text("В корзину")
                 }
             }
