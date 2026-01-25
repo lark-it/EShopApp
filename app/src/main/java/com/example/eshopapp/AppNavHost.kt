@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -23,6 +24,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.eshopapp.presentation.cart.CartScreen
+import com.example.eshopapp.presentation.cart.CartViewModel
 import com.example.eshopapp.presentation.category.AllCategoriesScreen
 import com.example.eshopapp.presentation.category.CatalogScreen
 import com.example.eshopapp.presentation.category.ProductInfo
@@ -68,6 +70,9 @@ fun AppNavHost() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+
+    val cartVm: CartViewModel = hiltViewModel()
+
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -113,7 +118,8 @@ fun AppNavHost() {
                     },
                     onSearch = { query ->
                         navController.navigate(Route.SearchProducts.createRoute(query))
-                    }
+                    },
+                    cartVm = cartVm
                 )
             }
 
@@ -125,7 +131,7 @@ fun AppNavHost() {
                 )
             }
 
-            composable(Route.Cart.path){ CartScreen() }
+            composable(Route.Cart.path){ CartScreen(cartVm = cartVm) }
 
             composable(Route.Profile.path){ ProfileScreen() }
 
@@ -155,7 +161,8 @@ fun AppNavHost() {
                     onProductClick = { id ->
                         navController.navigate(Route.ProductInfo.createRoute(id))
                     },
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.popBackStack() },
+                    cartVm = cartVm
                 )
             }
 
@@ -171,7 +178,8 @@ fun AppNavHost() {
                     onProductClick = { id ->
                         navController.navigate(Route.ProductInfo.createRoute(id))
                     },
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.popBackStack() },
+                    cartVm = cartVm
                 )
             }
         }

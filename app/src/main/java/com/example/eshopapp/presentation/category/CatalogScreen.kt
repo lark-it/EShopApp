@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.eshopapp.domain.model.Product
+import com.example.eshopapp.presentation.cart.CartViewModel
 import com.example.eshopapp.presentation.home.ProductCard
 
 
@@ -37,6 +38,7 @@ import com.example.eshopapp.presentation.home.ProductCard
 @Composable
 fun CatalogScreen(
     viewModel: CategoryViewModel = hiltViewModel(),
+    cartVm: CartViewModel,
     category: String,
     onProductClick: (Int) -> Unit,
     onBackClick: () -> Unit
@@ -89,7 +91,8 @@ fun CatalogScreen(
                 is CatalogUiState.Content -> {
                     AllCategoryProducts(
                         products = s.products,
-                        onProductClick
+                        onProductClick,
+                        onAddToCart = {product -> cartVm.addToCart(product) }
                     )
                 }
                 is CatalogUiState.Error -> {
@@ -105,7 +108,9 @@ fun CatalogScreen(
 @Composable
 fun FiltersHeader(){
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ){
         Text("Фильтр")
@@ -115,7 +120,8 @@ fun FiltersHeader(){
 @Composable
 fun AllCategoryProducts(
     products: List<Product>,
-    onProductClick:(Int)-> Unit
+    onProductClick:(Int) -> Unit,
+    onAddToCart: (Product) -> Unit
 ){
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
@@ -130,7 +136,8 @@ fun AllCategoryProducts(
         ) { product ->
             ProductCard(
                 onProductClick = { onProductClick(product.id) },
-                product
+                product,
+                onAddToCart = { onAddToCart(product) }
             )
         }
     }

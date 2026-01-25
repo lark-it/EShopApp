@@ -36,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.eshopapp.domain.model.Product
+import com.example.eshopapp.presentation.cart.CartViewModel
 import com.example.eshopapp.presentation.category.CategoryCard
 import com.example.eshopapp.presentation.category.CategoryCardUi
 
@@ -45,7 +46,8 @@ fun HomeScreen(
     onProductClick: (Int) -> Unit,
     onCategoryClick: (String) -> Unit,
     onSearch: (String) -> Unit,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    cartVm: CartViewModel
 ) {
     val state by viewModel.uiState.collectAsState()
     val productRows = state.products.chunked(2)
@@ -129,7 +131,8 @@ fun HomeScreen(
             items(productRows) { row ->
                 RecommendedRow(
                     onProductClick = onProductClick,
-                    products = row
+                    products = row,
+                    onAddToCart = {product -> cartVm.addToCart(product)}
                 )
             }
         }
@@ -161,7 +164,8 @@ fun PopularCategory(
 @Composable
 fun RecommendedRow(
     onProductClick: (Int) -> Unit,
-    products: List<Product>
+    products: List<Product>,
+    onAddToCart: (Product)-> Unit
 ){
     Row(
         modifier = Modifier
@@ -172,13 +176,15 @@ fun RecommendedRow(
         ProductCard(
             onProductClick,
             product = products[0],
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            onAddToCart
         )
         if (products.size > 1) {
             ProductCard(
                 onProductClick,
                 product = products[1],
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                onAddToCart
             )
         } else {
             Spacer(modifier = Modifier.weight(1f))
