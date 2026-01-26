@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.eshopapp.R
+import com.example.eshopapp.domain.model.Cart
 import dagger.hilt.android.lifecycle.HiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,7 +74,7 @@ fun CartScreen(
         ) {
             items(
                 items = state.items,
-                key = { it.product.id }
+                key = { it.productId }
             ) { cartItem ->
                 ProductInCart(
                     item = cartItem
@@ -85,7 +86,7 @@ fun CartScreen(
 
 @Composable
 fun ProductInCart(
-    item: CartItem
+    item: Cart
 ){
     Card(
         modifier = Modifier
@@ -103,8 +104,8 @@ fun ProductInCart(
                     .weight(1f)
                     .padding(start = 12.dp)
             ) {
-                Text(item.product.title)
-                Text(item.product.price.toString())
+                Text(item.title)
+                Text(item.price.toString())
                 Text("${item.quantity} шт")
             }
         }
