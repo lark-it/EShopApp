@@ -2,6 +2,7 @@ package com.example.eshopapp.presentation.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,8 +29,11 @@ import com.example.eshopapp.domain.model.Product
 fun ProductCard(
     onProductClick: (Int) -> Unit,
     product: Product,
+    quantityById: Int,
+    onAddToCart: (Product) -> Unit,
+    onIncrease: (Int) -> Unit,
+    onDecrease: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    onAddToCart: (Product) -> Unit
 ){
     Card(
         modifier = modifier
@@ -67,12 +72,24 @@ fun ProductCard(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(onClick = { onAddToCart(product) }) {
-                    Text("В корзину")
+            if (quantityById == 0){
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Button(onClick = { onAddToCart(product) }) {
+                        Text("В корзину")
+                    }
+                }
+            } else {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    IconButton(onClick = { onDecrease(product.id) }) {
+                        Text("-")
+                    }
+                    Text(quantityById.toString())
+                    IconButton(onClick = { onIncrease(product.id) }) {
+                        Text("+")
+                    }
                 }
             }
         }

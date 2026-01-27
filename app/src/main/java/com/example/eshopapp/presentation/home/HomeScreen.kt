@@ -52,6 +52,11 @@ fun HomeScreen(
     val state by viewModel.uiState.collectAsState()
     val productRows = state.products.chunked(2)
 
+    val cartState by cartVm.uiState.collectAsState()
+    val quantityById = remember(cartState.items) {
+        cartState.items.associate { it.productId to it.quantity }
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -132,7 +137,10 @@ fun HomeScreen(
                 RecommendedRow(
                     onProductClick = onProductClick,
                     products = row,
-                    onAddToCart = {product -> cartVm.addToCart(product)}
+                    quantityById  = quantityById ,
+                    onAddToCart = {product -> cartVm.addToCart(product)},
+                    onIncrease = { productId -> cartVm.increase(productId) },
+                    onDecrease = { productId -> cartVm.decrease(productId) },
                 )
             }
         }
@@ -165,7 +173,10 @@ fun PopularCategory(
 fun RecommendedRow(
     onProductClick: (Int) -> Unit,
     products: List<Product>,
-    onAddToCart: (Product)-> Unit
+    quantityById : Map<Int, Int>,
+    onAddToCart: (Product)-> Unit,
+    onIncrease: (Int)-> Unit,
+    onDecrease: (Int)-> Unit,
 ){
     Row(
         modifier = Modifier
@@ -173,18 +184,28 @@ fun RecommendedRow(
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        val q0 = quantityById[products[0].id] ?: 0
+
         ProductCard(
             onProductClick,
             product = products[0],
+            quantityById = q0,
+            onAddToCart,
+            onIncrease,
+            onDecrease,
             modifier = Modifier.weight(1f),
-            onAddToCart
         )
         if (products.size > 1) {
+            val q1 = quantityById[products[1].id] ?: 0
+
             ProductCard(
                 onProductClick,
                 product = products[1],
-                modifier = Modifier.weight(1f),
-                onAddToCart
+                quantityById = q1,
+                onAddToCart,
+                onIncrease,
+                onDecrease,
+                modifier = Modifier.weight(1f)
             )
         } else {
             Spacer(modifier = Modifier.weight(1f))
