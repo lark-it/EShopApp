@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,6 +45,11 @@ fun CatalogScreen(
     onBackClick: () -> Unit
 ) {
     val state by viewModel.catalogState.collectAsState()
+
+    val cartState by cartVm.uiState.collectAsState()
+    val quantityById = remember(cartState.items) {
+        cartState.items.associate { it.productId to it.quantity }
+    }
 
     LaunchedEffect(category) {
         viewModel.getCategoryProducts(category)
@@ -92,7 +98,10 @@ fun CatalogScreen(
                     AllCategoryProducts(
                         products = s.products,
                         onProductClick,
-                        onAddToCart = {product -> cartVm.addToCart(product) }
+                        quantityById = quantityById,
+                        onAddToCart = {product -> cartVm.addToCart(product) },
+                        onIncrease = {id -> cartVm.increase(id) },
+                        onDecrease = {id -> cartVm.decrease(id) }
                     )
                 }
                 is CatalogUiState.Error -> {
@@ -121,7 +130,10 @@ fun FiltersHeader(){
 fun AllCategoryProducts(
     products: List<Product>,
     onProductClick:(Int) -> Unit,
-    onAddToCart: (Product) -> Unit
+    quantityById: Map<Int, Int>,
+    onAddToCart: (Product) -> Unit,
+    onIncrease: (Int) -> Unit,
+    onDecrease: (Int) -> Unit
 ){
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
@@ -134,10 +146,14 @@ fun AllCategoryProducts(
             items = products,
             key = { it.id }
         ) { product ->
+            val q = quantityById[product.id] ?: 0
             ProductCard(
                 onProductClick = { onProductClick(product.id) },
                 product,
-                onAddToCart = { onAddToCart(product) }
+                quantityById = q,
+                onAddToCart = { onAddToCart(product) },
+                onIncrease,
+                onDecrease
             )
         }
     }

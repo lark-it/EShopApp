@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -38,6 +39,11 @@ fun SearchProductScreen(
     onBackClick: () -> Unit
 ) {
     val state by viewModel.resultState.collectAsState()
+
+    val cartState by cartVm.uiState.collectAsState()
+    val quantityById = remember(cartState.items) {
+        cartState.items.associate { it.productId to it.quantity }
+    }
 
     LaunchedEffect(query) {
         viewModel.onProductSearch(query)
@@ -91,10 +97,14 @@ fun SearchProductScreen(
                     items = state.items,
                     key = { it.id }
                 ) { product ->
+                    val q = quantityById[product.id] ?: 0
                     ProductCard(
                         onProductClick = { onProductClick(product.id) },
                         product = product,
-                        onAddToCart = {product -> cartVm.addToCart(product) }
+                        quantityById = q,
+                        onAddToCart = {product -> cartVm.addToCart(product) },
+                        onIncrease = { id -> cartVm.increase(id) },
+                        onDecrease = { id -> cartVm.decrease(id) }
                     )
                 }
             }

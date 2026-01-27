@@ -38,6 +38,7 @@ class CartViewModel @Inject constructor(
                     totalPrice = 0.0
                 )
             )
+
     fun addToCart(product: Product) {
         viewModelScope.launch {
             repo.addToCart(
@@ -49,6 +50,18 @@ class CartViewModel @Inject constructor(
                     quantity = 1
                 )
             )
+        }
+    }
+
+    fun increase(productId: Int){
+        viewModelScope.launch {
+            repo.increment(productId)
+        }
+    }
+
+    fun decrease(productId: Int){
+        viewModelScope.launch {
+            repo.decrement(productId)
         }
     }
 }
