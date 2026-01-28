@@ -25,11 +25,13 @@ interface CartDao {
     @Query(
         "UPDATE cart_items " +
             "SET quantity = quantity - 1 " +
-            "WHERE productId = :productId " +
-            "AND quantity > 1"
+            "WHERE productId = :productId "
     )
     suspend fun decrement(productId: Int)
 
     @Query("DELETE FROM cart_items WHERE productId = :productId")
     suspend fun deleteById(productId: Int)
+
+    @Query("SELECT * FROM cart_items WHERE productId = :productId")
+    suspend fun getCartItemById(productId: Int): CartItemEntity?
 }

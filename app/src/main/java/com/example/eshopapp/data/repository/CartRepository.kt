@@ -1,5 +1,6 @@
 package com.example.eshopapp.data.repository
 
+import androidx.room.Transaction
 import com.example.eshopapp.data.local.CartDao
 import com.example.eshopapp.data.local.CartItemEntity
 import com.example.eshopapp.data.mapper.toDomain
@@ -18,7 +19,16 @@ class CartRepository @Inject constructor(
 
     suspend fun increment(productId: Int) = dao.increment(productId)
 
-    suspend fun decrement(productId: Int) = dao.decrement(productId)
+    @Transaction
+    suspend fun decrement(productId: Int){
+        val product = dao.getCartItemById(productId) ?: return
+
+        if (product.quantity <= 1){
+            deleteById(productId)
+        } else {
+            dao.decrement(productId)
+        }
+    }
 
     suspend fun deleteById(productId: Int) = dao.deleteById(productId)
 }

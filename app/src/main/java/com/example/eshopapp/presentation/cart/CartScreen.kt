@@ -1,6 +1,7 @@
 package com.example.eshopapp.presentation.cart
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -48,14 +49,6 @@ fun CartScreen(
                 title = {
                     Text("Корзина")
                 },
-                navigationIcon = {
-                    IconButton(onClick = { }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
                 actions = {
                     IconButton(onClick = { }) {
                         Icon(
@@ -80,6 +73,9 @@ fun CartScreen(
                     item = cartItem
                 )
             }
+            item {
+                ResultCard(state = state)
+            }
         }
     }
 }
@@ -93,7 +89,7 @@ fun ProductInCart(
             .fillMaxWidth()
             .padding(12.dp)
     ) {
-        Row(modifier = Modifier.fillMaxSize()) {
+        Row(modifier = Modifier.fillMaxSize().padding(12.dp)) {
             Image(
                 painter = painterResource(R.drawable.img_placeholder),
                 contentDescription = null,
@@ -108,6 +104,38 @@ fun ProductInCart(
                 Text(item.price.toString())
                 Text("${item.quantity} шт")
             }
+        }
+    }
+}
+
+@Composable
+fun ResultCard(
+    state: CartUiState
+){
+    val totalCount = state.totalCount
+    val totalPrice = String.format("%.2f", state.totalPrice)
+
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            Modifier.fillMaxSize().padding(12.dp)
+        ) {
+            Text(
+                "Ваша корзина"
+            )
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    "Товары ($totalCount)"
+                )
+                Text(
+                    totalPrice
+                )
+            }
+
         }
     }
 }
