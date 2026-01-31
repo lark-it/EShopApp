@@ -8,10 +8,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,7 +39,9 @@ fun ProductCard(
     onIncrease: (Int) -> Unit,
     onDecrease: (Int) -> Unit,
     modifier: Modifier = Modifier,
-){
+    isFavorite: Boolean,
+    onFavoriteClick: (Int) -> Unit
+    ){
     Card(
         modifier = modifier
             .fillMaxWidth(),
@@ -48,15 +55,30 @@ fun ProductCard(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            AsyncImage(
-                model = product.image,
-                placeholder = painterResource(R.drawable.img_placeholder),
-                error = painterResource(R.drawable.img_error),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-            )
+            Box(){
+                AsyncImage(
+                    model = product.image,
+                    placeholder = painterResource(R.drawable.img_placeholder),
+                    error = painterResource(R.drawable.img_error),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                )
+                IconToggleButton(
+                    checked = isFavorite,
+                    onCheckedChange = { onFavoriteClick(product.id) },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Favorite"
+                    )
+                }
+            }
+
             Column(
                 modifier = Modifier.padding(8.dp)
             ) {
