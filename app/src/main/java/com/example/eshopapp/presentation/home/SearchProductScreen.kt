@@ -28,12 +28,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.eshopapp.presentation.cart.CartViewModel
+import com.example.eshopapp.presentation.favorite.FavoriteViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchProductScreen(
     viewModel: SearchResultsViewModel = hiltViewModel(),
     cartVm: CartViewModel,
+    favoriteVm: FavoriteViewModel,
     query: String,
     onProductClick: (Int) -> Unit,
     onBackClick: () -> Unit
@@ -104,7 +106,9 @@ fun SearchProductScreen(
                         quantityById = q,
                         onAddToCart = {product -> cartVm.addToCart(product) },
                         onIncrease = { id -> cartVm.increase(id) },
-                        onDecrease = { id -> cartVm.decrease(id) }
+                        onDecrease = { id -> cartVm.decrease(id) },
+                        isFavorite = product.id in favoriteVm.favoriteIds.value ,
+                        onFavoriteClick = {productId -> favoriteVm.toggleFavorite(productId) }
                     )
                 }
             }

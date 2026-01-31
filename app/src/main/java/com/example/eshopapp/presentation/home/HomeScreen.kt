@@ -39,6 +39,7 @@ import com.example.eshopapp.domain.model.Product
 import com.example.eshopapp.presentation.cart.CartViewModel
 import com.example.eshopapp.presentation.category.CategoryCard
 import com.example.eshopapp.presentation.category.CategoryCardUi
+import com.example.eshopapp.presentation.favorite.FavoriteViewModel
 
 
 @Composable
@@ -47,7 +48,8 @@ fun HomeScreen(
     onCategoryClick: (String) -> Unit,
     onSearch: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
-    cartVm: CartViewModel
+    cartVm: CartViewModel,
+    favoriteVm: FavoriteViewModel
 ) {
     val state by viewModel.uiState.collectAsState()
     val productRows = state.products.chunked(2)
@@ -56,6 +58,8 @@ fun HomeScreen(
     val quantityById = remember(cartState.items) {
         cartState.items.associate { it.productId to it.quantity }
     }
+
+    val favoriteIds by favoriteVm.favoriteIds.collectAsState(initial = emptySet())
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -141,6 +145,8 @@ fun HomeScreen(
                     onAddToCart = {product -> cartVm.addToCart(product)},
                     onIncrease = { productId -> cartVm.increase(productId) },
                     onDecrease = { productId -> cartVm.decrease(productId) },
+                    favoriteIds = favoriteIds,
+                    onFavoriteClick = { productId -> favoriteVm.toggleFavorite(productId) }
                 )
             }
         }
@@ -177,6 +183,8 @@ fun RecommendedRow(
     onAddToCart: (Product)-> Unit,
     onIncrease: (Int)-> Unit,
     onDecrease: (Int)-> Unit,
+    favoriteIds: Set<Int>,
+    onFavoriteClick: (Int) -> Unit
 ){
     Row(
         modifier = Modifier
@@ -194,6 +202,9 @@ fun RecommendedRow(
             onIncrease,
             onDecrease,
             modifier = Modifier.weight(1f),
+            isFavorite = products[0].id in favoriteIds,
+            onFavoriteClick = onFavoriteClick
+
         )
         if (products.size > 1) {
             val q1 = quantityById[products[1].id] ?: 0
@@ -205,7 +216,9 @@ fun RecommendedRow(
                 onAddToCart,
                 onIncrease,
                 onDecrease,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                isFavorite = products[0].id in favoriteIds,
+                onFavoriteClick = onFavoriteClick
             )
         } else {
             Spacer(modifier = Modifier.weight(1f))

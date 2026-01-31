@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.eshopapp.domain.model.Product
 import com.example.eshopapp.presentation.cart.CartViewModel
+import com.example.eshopapp.presentation.favorite.FavoriteViewModel
 import com.example.eshopapp.presentation.home.ProductCard
 
 
@@ -42,7 +43,8 @@ fun CatalogScreen(
     cartVm: CartViewModel,
     category: String,
     onProductClick: (Int) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    favoriteVm: FavoriteViewModel
 ) {
     val state by viewModel.catalogState.collectAsState()
 
@@ -50,6 +52,8 @@ fun CatalogScreen(
     val quantityById = remember(cartState.items) {
         cartState.items.associate { it.productId to it.quantity }
     }
+
+    val favoriteIds = favoriteVm.favoriteIds.value
 
     LaunchedEffect(category) {
         viewModel.getCategoryProducts(category)
@@ -101,7 +105,9 @@ fun CatalogScreen(
                         quantityById = quantityById,
                         onAddToCart = {product -> cartVm.addToCart(product) },
                         onIncrease = {id -> cartVm.increase(id) },
-                        onDecrease = {id -> cartVm.decrease(id) }
+                        onDecrease = {id -> cartVm.decrease(id) },
+                        favoriteIds = favoriteIds,
+                        onFavoriteClick = { productId -> favoriteVm.toggleFavorite(productId)}
                     )
                 }
                 is CatalogUiState.Error -> {
@@ -133,7 +139,9 @@ fun AllCategoryProducts(
     quantityById: Map<Int, Int>,
     onAddToCart: (Product) -> Unit,
     onIncrease: (Int) -> Unit,
-    onDecrease: (Int) -> Unit
+    onDecrease: (Int) -> Unit,
+    favoriteIds: Set<Int>,
+    onFavoriteClick: (Int) -> Unit
 ){
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
@@ -153,7 +161,9 @@ fun AllCategoryProducts(
                 quantityById = q,
                 onAddToCart = { onAddToCart(product) },
                 onIncrease,
-                onDecrease
+                onDecrease,
+                isFavorite = product.id in favoriteIds,
+                onFavoriteClick = onFavoriteClick
             )
         }
     }

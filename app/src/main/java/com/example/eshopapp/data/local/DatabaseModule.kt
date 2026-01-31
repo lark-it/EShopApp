@@ -15,8 +15,13 @@ class DatabaseModule {
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context) =
-        Room.databaseBuilder(context, AppDatabase::class.java, "eshop_database").build()
+        Room.databaseBuilder(context, AppDatabase::class.java, "eshop_database")
+            .fallbackToDestructiveMigration()
+            .build()
 
     @Provides
     fun provideCartDao(db: AppDatabase) = db.cartDao()
+
+    @Provides
+    fun provideFavoriteDao(db: AppDatabase) = db.favoriteDao()
 }

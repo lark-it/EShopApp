@@ -2,6 +2,7 @@ package com.example.eshopapp
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -28,6 +29,8 @@ import com.example.eshopapp.presentation.cart.CartViewModel
 import com.example.eshopapp.presentation.category.AllCategoriesScreen
 import com.example.eshopapp.presentation.category.CatalogScreen
 import com.example.eshopapp.presentation.category.ProductInfo
+import com.example.eshopapp.presentation.favorite.FavoriteScreen
+import com.example.eshopapp.presentation.favorite.FavoriteViewModel
 import com.example.eshopapp.presentation.home.HomeScreen
 import com.example.eshopapp.presentation.home.SearchProductScreen
 import com.example.eshopapp.presentation.profile.ProfileScreen
@@ -36,6 +39,7 @@ sealed class Route(val path: String) {
     data object Home : Route("home")
     data object Category : Route("category")
     data object Cart : Route("cart")
+    data object Favorite : Route("favorite")
     data object Profile : Route("profile")
 
     //побочные
@@ -62,6 +66,7 @@ val bottomItems = listOf(
     BottomItem(Route.Home,    "home",   Icons.Default.Home),
     BottomItem(Route.Category,  "category",   Icons.Default.Search),
     BottomItem(Route.Cart, "cart", Icons.Default.ShoppingCart),
+    BottomItem(Route.Favorite, "favorite", Icons.Default.Favorite),
     BottomItem(Route.Profile, "profile", Icons.Default.Person)
 )
 
@@ -72,6 +77,7 @@ fun AppNavHost() {
     val currentDestination = navBackStackEntry?.destination
 
     val cartVm: CartViewModel = hiltViewModel()
+    val favoriteVm: FavoriteViewModel = hiltViewModel()
 
     Scaffold(
         bottomBar = {
@@ -119,7 +125,8 @@ fun AppNavHost() {
                     onSearch = { query ->
                         navController.navigate(Route.SearchProducts.createRoute(query))
                     },
-                    cartVm = cartVm
+                    cartVm = cartVm,
+                    favoriteVm = favoriteVm
                 )
             }
 
@@ -132,6 +139,16 @@ fun AppNavHost() {
             }
 
             composable(Route.Cart.path){ CartScreen(cartVm = cartVm) }
+
+            composable(Route.Favorite.path){
+                FavoriteScreen(
+                    vm = favoriteVm,
+                    cartVm = cartVm,
+                    onProductClick = { id ->
+                        navController.navigate(Route.ProductInfo.createRoute(id))
+                    }
+                )
+            }
 
             composable(Route.Profile.path){ ProfileScreen() }
 
@@ -162,7 +179,8 @@ fun AppNavHost() {
                         navController.navigate(Route.ProductInfo.createRoute(id))
                     },
                     onBackClick = { navController.popBackStack() },
-                    cartVm = cartVm
+                    cartVm = cartVm,
+                    favoriteVm = favoriteVm
                 )
             }
 
@@ -179,7 +197,8 @@ fun AppNavHost() {
                         navController.navigate(Route.ProductInfo.createRoute(id))
                     },
                     onBackClick = { navController.popBackStack() },
-                    cartVm = cartVm
+                    cartVm = cartVm,
+                    favoriteVm = favoriteVm
                 )
             }
         }
