@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.eshopapp.domain.model.Product
 import com.example.eshopapp.presentation.cart.CartViewModel
+import com.example.eshopapp.presentation.category.CatalogUiState
 import com.example.eshopapp.presentation.home.ProductCard
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,7 +57,12 @@ fun FavoriteScreen(
         {
             when {
                 state.loading -> CircularProgressIndicator()
-                state.error != null -> Text(state.error!!)
+                state.error != null -> {
+                    Text(state.error!!)
+                    Button(onClick = { vm.retryLoad()}) {
+                        Text("Повторить")
+                    }
+                }
                 else -> LazyVerticalGrid(
                     modifier = Modifier.fillMaxSize(),
                     columns = GridCells.Fixed(2),
@@ -75,7 +82,7 @@ fun FavoriteScreen(
                             onAddToCart = { product -> cartVm.addToCart(product) },
                             onIncrease = { id -> cartVm.increase(id) },
                             onDecrease = { id -> cartVm.decrease(id) },
-                            isFavorite = product.id in vm.favoriteIds.value,
+                            isFavorite = product.id in vm.favoriteIds.collectAsState().value,
                             onFavoriteClick = { productId -> vm.toggleFavorite(productId) }
                         )
                     }

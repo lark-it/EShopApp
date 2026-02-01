@@ -1,5 +1,6 @@
 package com.example.eshopapp
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -80,6 +81,7 @@ fun AppNavHost() {
     val favoriteVm: FavoriteViewModel = hiltViewModel()
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             NavigationBar {
                 bottomItems.forEach { item ->
@@ -90,12 +92,15 @@ fun AppNavHost() {
                     NavigationBarItem(
                         selected = selected,
                         onClick = {
-                            navController.navigate(item.route.path){
-                                launchSingleTop = true
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
+                            val popped = navController.popBackStack(item.route.path, inclusive = false)
+                            if (!popped) {
+                                navController.navigate(item.route.path){
+                                    launchSingleTop = true
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        saveState = true
+                                    }
+                                    restoreState = true
                                 }
-                                restoreState = true
                             }
                         },
                         icon = {
@@ -122,6 +127,9 @@ fun AppNavHost() {
                     onCategoryClick = { slug ->
                         navController.navigate(Route.CategoryProducts.createRoute(slug))
                     },
+                    onAllCategoryClick = {
+                        navController.navigate(Route.Category.path)
+                    },
                     onSearch = { query ->
                         navController.navigate(Route.SearchProducts.createRoute(query))
                     },
@@ -134,11 +142,19 @@ fun AppNavHost() {
                 AllCategoriesScreen(
                     onCategoryClick = { slug ->
                         navController.navigate(Route.CategoryProducts.createRoute(slug))
+                    },
+                    onSearch = { query ->
+                        navController.navigate(Route.SearchProducts.createRoute(query))
                     }
                 )
             }
 
-            composable(Route.Cart.path){ CartScreen(cartVm = cartVm) }
+            composable(Route.Cart.path){
+                CartScreen(
+                    cartVm = cartVm,
+                    clearCart = { cartVm.clearCart() }
+                )
+            }
 
             composable(Route.Favorite.path){
                 FavoriteScreen(

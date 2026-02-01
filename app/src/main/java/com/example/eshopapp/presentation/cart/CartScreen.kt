@@ -4,7 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,35 +20,32 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.example.eshopapp.R
 import com.example.eshopapp.domain.model.Cart
-import dagger.hilt.android.lifecycle.HiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartScreen(
-    cartVm: CartViewModel
+    cartVm: CartViewModel,
+    clearCart: () -> Unit
 ) {
     val state by cartVm.uiState.collectAsState()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
-//                windowInsets = WindowInsets(0, 0, 0, 0),
                 title = {
                     Text("Корзина")
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { clearCart() }) {
                         Icon(
                             imageVector = Icons.Default.Delete,
                             contentDescription = null
@@ -89,10 +84,14 @@ fun ProductInCart(
             .fillMaxWidth()
             .padding(12.dp)
     ) {
-        Row(modifier = Modifier.fillMaxSize().padding(12.dp)) {
-            Image(
-                painter = painterResource(R.drawable.img_placeholder),
+        Row(modifier = Modifier
+            .fillMaxSize()
+            .padding(12.dp)) {
+            AsyncImage(
+                model = item.image,
                 contentDescription = null,
+                placeholder = painterResource(R.drawable.img_placeholder),
+                error = painterResource(R.drawable.img_error),
                 modifier = Modifier.size(64.dp)
             )
             Column(
@@ -116,10 +115,14 @@ fun ResultCard(
     val totalPrice = String.format("%.2f", state.totalPrice)
 
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp)
     ) {
         Column(
-            Modifier.fillMaxSize().padding(12.dp)
+            Modifier
+                .fillMaxSize()
+                .padding(12.dp)
         ) {
             Text(
                 "Ваша корзина"

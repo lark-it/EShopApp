@@ -15,11 +15,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,9 +38,15 @@ class FavoriteViewModel @Inject constructor(
                 initialValue = emptySet()
             )
 
+    private val refreshTick = MutableStateFlow(0)
+    fun retryLoad() {
+        refreshTick.value++
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<FavoriteUiState> =
-        favoriteIds.flatMapLatest { ids ->
+        combine(favoriteIds,refreshTick){ ids, _ -> ids }
+            .flatMapLatest { ids ->
             flow {
                 emit(FavoriteUiState(loading = true))
 

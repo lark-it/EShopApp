@@ -31,4 +31,6 @@ class CartRepository @Inject constructor(
     }
 
     suspend fun deleteById(productId: Int) = dao.deleteById(productId)
+
+    suspend fun clearCart() = dao.clearCart()
 }

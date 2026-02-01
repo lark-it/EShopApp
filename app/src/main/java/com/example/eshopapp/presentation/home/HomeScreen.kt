@@ -5,35 +5,27 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.eshopapp.domain.model.Product
 import com.example.eshopapp.presentation.cart.CartViewModel
@@ -41,11 +33,11 @@ import com.example.eshopapp.presentation.category.CategoryCard
 import com.example.eshopapp.presentation.category.CategoryCardUi
 import com.example.eshopapp.presentation.favorite.FavoriteViewModel
 
-
 @Composable
 fun HomeScreen(
     onProductClick: (Int) -> Unit,
     onCategoryClick: (String) -> Unit,
+    onAllCategoryClick:() -> Unit,
     onSearch: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
     cartVm: CartViewModel,
@@ -62,29 +54,36 @@ fun HomeScreen(
     val favoriteIds by favoriteVm.favoriteIds.collectAsState(initial = emptySet())
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().statusBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item{
-            SimpleSearchBar(
-                onSearch = onSearch
-            )
+            Box(modifier = Modifier.padding(horizontal = 12.dp)){
+                SimpleSearchBar(
+                    onSearch = onSearch
+                )
+            }
         }
         item{
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ){
                 Text(
                     "Популярные категории:",
                     style = MaterialTheme.typography.titleLarge
                 )
-                Text(
-                    "Больше:",
-                    style = MaterialTheme.typography.titleSmall
-                )
+                Button(
+                    onClick = { onAllCategoryClick() }
+                ) {
+                    Text(
+                        "Больше:",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                }
             }
             Spacer(Modifier.height(16.dp))
 
@@ -169,7 +168,7 @@ fun PopularCategory(
                 onClick = { onCategoryClick(category.slug) },
                 modifier = Modifier
                     .width(120.dp)
-                    .aspectRatio(0.6f)
+//                    .aspectRatio(0.6f)
             )
         }
     }
@@ -204,7 +203,6 @@ fun RecommendedRow(
             modifier = Modifier.weight(1f),
             isFavorite = products[0].id in favoriteIds,
             onFavoriteClick = onFavoriteClick
-
         )
         if (products.size > 1) {
             val q1 = quantityById[products[1].id] ?: 0
@@ -217,11 +215,16 @@ fun RecommendedRow(
                 onIncrease,
                 onDecrease,
                 modifier = Modifier.weight(1f),
-                isFavorite = products[0].id in favoriteIds,
+                isFavorite = products[1].id in favoriteIds,
                 onFavoriteClick = onFavoriteClick
             )
         } else {
             Spacer(modifier = Modifier.weight(1f))
         }
     }
+}
+@Preview(showBackground = true, name = "Light")
+@Composable
+fun HomeScreenPreview(){
+
 }

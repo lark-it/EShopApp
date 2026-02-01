@@ -64,4 +64,10 @@ class CartViewModel @Inject constructor(
             repo.decrement(productId)
         }
     }
+
+    fun clearCart(){
+        viewModelScope.launch {
+            repo.clearCart()
+        }
+    }
 }
