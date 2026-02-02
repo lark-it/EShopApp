@@ -1,5 +1,6 @@
 package com.example.eshopapp.presentation.home
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -104,7 +105,10 @@ fun ProductCard(
                     }
                 }
             } else {
-                Row(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
                     IconButton(onClick = { onDecrease(product.id) }) {
                         Text("-")
                     }
