@@ -52,7 +52,7 @@ fun CatalogScreen(
         cartState.items.associate { it.productId to it.quantity }
     }
 
-    val favoriteIds = favoriteVm.favoriteIds.value
+    val favoriteIds = favoriteVm.favoriteIds.collectAsState().value
 
     LaunchedEffect(category) {
         viewModel.getCategoryProducts(category)
@@ -73,14 +73,6 @@ fun CatalogScreen(
                             contentDescription = null
                         )
                     }
-                },
-                actions = {
-                    IconButton(onClick = { }) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = null
-                        )
-                    }
                 }
             )
         }
@@ -90,7 +82,6 @@ fun CatalogScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            FiltersHeader()
             when (val s = state) {
                 is CatalogUiState.Loading -> {
                     CircularProgressIndicator()
@@ -117,18 +108,7 @@ fun CatalogScreen(
         }
     }
 }
-@Composable
-fun FiltersHeader(){
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ){
-        Text("Фильтр")
-        Text("Сортировка")
-    }
-}
+
 @Composable
 fun AllCategoryProducts(
     products: List<Product>,

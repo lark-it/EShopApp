@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.room.util.query
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +46,9 @@ fun SimpleSearchBar(
                     Icon(Icons.Default.Search, contentDescription = "Search")
                 },
                 trailingIcon = {
-                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                    if (state.query.isNotEmpty()){
+                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                    }
                 }
             )
         },

@@ -177,6 +177,7 @@ fun AppNavHost() {
             ){ backStackEntry ->
                 val id = backStackEntry.arguments?.getInt(Route.ProductInfo.ARG_ID) ?: return@composable
                 ProductInfo(
+                    favoriteVm = favoriteVm,
                     productId = id,
                     onBackClick = { navController.popBackStack() }
                 )

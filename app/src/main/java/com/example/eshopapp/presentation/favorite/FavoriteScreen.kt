@@ -63,6 +63,7 @@ fun FavoriteScreen(
                         Text("Повторить")
                     }
                 }
+                //нужно добавить emptyState чтобы показывать надпись "к сожалению товаров нет"
                 else -> LazyVerticalGrid(
                     modifier = Modifier.fillMaxSize(),
                     columns = GridCells.Fixed(2),
