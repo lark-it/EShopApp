@@ -1,10 +1,9 @@
 package com.example.eshopapp.data.repository
 
 import com.example.eshopapp.data.mapper.toDomain
-import com.example.eshopapp.data.mapper.toUi
 import com.example.eshopapp.data.network.ApiService
+import com.example.eshopapp.domain.model.Category
 import com.example.eshopapp.domain.model.Product
-import com.example.eshopapp.presentation.category.CategoryCardUi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -15,9 +14,8 @@ import javax.inject.Inject
 class CategoryRepository @Inject constructor(
     val api: ApiService
 ){
-    suspend fun getCategories(): List<CategoryCardUi>{
-        val response = api.getCategories().map { it.toDomain() }
-        return response.map {it.toUi()}
+    suspend fun getCategories(): List<Category>{
+        return api.getCategories().map { it.toDomain() }
     }
 
     suspend fun getCategoryProducts(category: String): List<Product>{
@@ -33,7 +31,7 @@ class CategoryRepository @Inject constructor(
 
     suspend fun getCategoriesWithImages(
         limit: Int? = null,
-    ): List<CategoryCardUi> = coroutineScope {
+    ): List<Category> = coroutineScope {
         val allCategories = getCategories()
         val limitCategories = limit?.let { allCategories.take(it) } ?: allCategories
 

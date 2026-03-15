@@ -29,11 +29,12 @@ fun ReviewsDto.toDomain(): Review =
 fun CategoryDto.toDomain(): Category =
     Category(
         name = name,
-        slug = slug
+        slug = slug,
+        imageUrl = null
     )
 fun Category.toUi(): CategoryCardUi =
     CategoryCardUi(
         slug = slug,
         name = name,
-        imageUrl = null
+        imageUrl = imageUrl
     )

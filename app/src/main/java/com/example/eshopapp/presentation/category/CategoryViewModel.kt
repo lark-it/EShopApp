@@ -2,6 +2,7 @@ package com.example.eshopapp.presentation.category
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.eshopapp.data.mapper.toUi
 import com.example.eshopapp.data.repository.CategoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +36,7 @@ class CategoryViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val categories = repo.getCategoriesWithImages()
+                val categories = repo.getCategoriesWithImages().map { it.toUi() }
                 _uiState.value = CategoryUiState.Content(categories)
 
             } catch (e: Exception) {

@@ -2,6 +2,7 @@ package com.example.eshopapp.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.eshopapp.data.mapper.toUi
 import com.example.eshopapp.data.repository.CategoryRepository
 import com.example.eshopapp.data.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -66,7 +67,7 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val categories = catalogRepo.getCategoriesWithImages(6)
+                val categories = catalogRepo.getCategoriesWithImages(6).map { it.toUi() }
                 _uiState.update { it.copy(
                     categories = categories,
                     categoriesLoading = false
