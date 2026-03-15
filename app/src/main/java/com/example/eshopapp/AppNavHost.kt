@@ -1,5 +1,6 @@
 package com.example.eshopapp
 
+import android.net.Uri
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -53,7 +54,10 @@ sealed class Route(val path: String) {
         const val ARG_NAME = "slug"
     }
     data object SearchProducts : Route("search?query={query}"){
-        fun createRoute(query: String) = "search?query=${query}"
+        fun createRoute(query: String): String {
+            val encodedQuery = Uri.encode(query)
+            return "search?query=$encodedQuery"
+        }
         const val ARG_NAME = "query"
     }
 }

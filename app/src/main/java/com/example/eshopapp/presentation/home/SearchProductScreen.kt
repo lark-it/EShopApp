@@ -83,32 +83,38 @@ fun SearchProductScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (state.isLoading){
-                CircularProgressIndicator()
-            }
-            LazyVerticalGrid(
-                modifier = Modifier.fillMaxSize(),
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(
-                    items = state.items,
-                    key = { it.id }
-                ) { product ->
-                    val q = quantityById[product.id] ?: 0
-                    ProductCard(
-                        onProductClick = { onProductClick(product.id) },
-                        product = product,
-                        quantityById = q,
-                        onAddToCart = {product -> cartVm.addToCart(product) },
-                        onIncrease = { id -> cartVm.increase(id) },
-                        onDecrease = { id -> cartVm.decrease(id) },
-                        isFavorite = product.id in favoriteVm.favoriteIds.value ,
-                        onFavoriteClick = {productId -> favoriteVm.toggleFavorite(productId) }
-                    )
+            when{
+                state.isLoading ->  CircularProgressIndicator()
+
+                state.error != null -> Text(text = state.error.toString())
+
+                state.items.isNotEmpty() -> {
+                    LazyVerticalGrid(
+                        modifier = Modifier.fillMaxSize(),
+                        columns = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(
+                            items = state.items,
+                            key = { it.id }
+                        ) { product ->
+                            val q = quantityById[product.id] ?: 0
+                            ProductCard(
+                                onProductClick = { onProductClick(product.id) },
+                                product = product,
+                                quantityById = q,
+                                onAddToCart = {product -> cartVm.addToCart(product) },
+                                onIncrease = { id -> cartVm.increase(id) },
+                                onDecrease = { id -> cartVm.decrease(id) },
+                                isFavorite = product.id in favoriteVm.favoriteIds.collectAsState().value ,
+                                onFavoriteClick = {productId -> favoriteVm.toggleFavorite(productId) }
+                            )
+                        }
+                    }
                 }
+                else -> Text("ничего не найдено")
             }
         }
     }
