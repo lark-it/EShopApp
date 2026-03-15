@@ -1,6 +1,7 @@
 package com.example.eshopapp.presentation.cart
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,7 +24,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -55,21 +58,38 @@ fun CartScreen(
             )
         }
     ){ innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            items(
-                items = state.items,
-                key = { it.productId }
-            ) { cartItem ->
-                ProductInCart(
-                    item = cartItem
-                )
+        when {
+            state.error != null -> Text(state.error.toString())
+
+            state.items.isNotEmpty() -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
+                    items(
+                        items = state.items,
+                        key = { it.productId }
+                    ) { cartItem ->
+                        ProductInCart(
+                            item = cartItem
+                        )
+                    }
+                    item {
+                        ResultCard(state = state)
+                    }
+                }
             }
-            item {
-                ResultCard(state = state)
+
+            else -> {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(innerPadding),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Кажется корзина пустая")
+                    // тут будет кнопка ведущая в каталог
+                }
             }
         }
     }

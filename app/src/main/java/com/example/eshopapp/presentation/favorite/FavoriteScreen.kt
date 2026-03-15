@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -53,41 +54,47 @@ fun FavoriteScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding))
-        {
+                .padding(innerPadding),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
             when {
                 state.loading -> CircularProgressIndicator()
+
                 state.error != null -> {
                     Text(state.error!!)
                     Button(onClick = { vm.retryLoad()}) {
                         Text("Повторить")
                     }
                 }
-                //нужно добавить emptyState чтобы показывать надпись "к сожалению товаров нет"
-                else -> LazyVerticalGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(
-                        items = state.items,
-                        key = { it.id }
-                    ) { product ->
-                        val q = quantityById[product.id] ?: 0
-                        ProductCard(
-                            onProductClick = { onProductClick(product.id) },
-                            product,
-                            quantityById = q,
-                            onAddToCart = { product -> cartVm.addToCart(product) },
-                            onIncrease = { id -> cartVm.increase(id) },
-                            onDecrease = { id -> cartVm.decrease(id) },
-                            isFavorite = product.id in vm.favoriteIds.collectAsState().value,
-                            onFavoriteClick = { productId -> vm.toggleFavorite(productId) }
-                        )
+                state.items.isNotEmpty() -> {
+                    LazyVerticalGrid(
+                        modifier = Modifier.fillMaxSize(),
+                        columns = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(
+                            items = state.items,
+                            key = { it.id }
+                        ) { product ->
+                            val q = quantityById[product.id] ?: 0
+                            ProductCard(
+                                onProductClick = { onProductClick(product.id) },
+                                product,
+                                quantityById = q,
+                                onAddToCart = { product -> cartVm.addToCart(product) },
+                                onIncrease = { id -> cartVm.increase(id) },
+                                onDecrease = { id -> cartVm.decrease(id) },
+                                isFavorite = product.id in vm.favoriteIds.collectAsState().value,
+                                onFavoriteClick = { productId -> vm.toggleFavorite(productId) }
+                            )
+                        }
                     }
                 }
+
+                else -> Text("Товаров в избранном пока что нет")
             }
         }
     }
