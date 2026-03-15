@@ -10,7 +10,7 @@ data class CartItem(
 
 data class CartUiState(
     val items: List<Cart> = emptyList(),
-    val totalCount: Int,
-    val totalPrice: Double,
+    val totalCount: Int = 0,
+    val totalPrice: Double = 0.0,
     val error: String? = null
 )

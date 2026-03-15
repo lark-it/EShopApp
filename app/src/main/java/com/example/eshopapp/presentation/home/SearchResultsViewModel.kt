@@ -51,7 +51,7 @@ class SearchResultsViewModel @Inject constructor(
                         query = "",
                         items = emptyList(),
                         isLoading = false,
-                        error = null
+                        error = e.message
                     )
                 }
             }
