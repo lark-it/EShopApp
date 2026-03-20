@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,7 +38,8 @@ import com.example.eshopapp.domain.model.Cart
 @Composable
 fun CartScreen(
     cartVm: CartViewModel,
-    clearCart: () -> Unit
+    clearCart: () -> Unit,
+    onGoToHome: () -> Unit
 ) {
     val state by cartVm.uiState.collectAsState()
     Scaffold(
@@ -88,7 +90,9 @@ fun CartScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text("Кажется корзина пустая")
-                    // тут будет кнопка ведущая в каталог
+                    Button(onClick = onGoToHome) {
+                        Text("Перейти в каталог")
+                    }
                 }
             }
         }

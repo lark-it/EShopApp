@@ -68,8 +68,8 @@ data class BottomItem(
 )
 
 val bottomItems = listOf(
-    BottomItem(Route.Home,    "home",   Icons.Default.Home),
-    BottomItem(Route.Category,  "category",   Icons.Default.Search),
+    BottomItem(Route.Home, "home", Icons.Default.Home),
+    BottomItem(Route.Category,  "category", Icons.Default.Search),
     BottomItem(Route.Cart, "cart", Icons.Default.ShoppingCart),
     BottomItem(Route.Favorite, "favorite", Icons.Default.Favorite),
     BottomItem(Route.Profile, "profile", Icons.Default.Person)
@@ -156,7 +156,16 @@ fun AppNavHost() {
             composable(Route.Cart.path){
                 CartScreen(
                     cartVm = cartVm,
-                    clearCart = { cartVm.clearCart() }
+                    clearCart = { cartVm.clearCart() },
+                    onGoToHome = {
+                        navController.navigate(Route.Home.path){
+                            launchSingleTop = true
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            restoreState = false
+                        }
+                    }
                 )
             }
 
