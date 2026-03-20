@@ -18,6 +18,11 @@ class CategoryRepository @Inject constructor(
         return api.getCategories().map { it.toDomain() }
     }
 
+    suspend fun getCategoryImage(categorySlug: String): String{
+        val topProduct = getTopProductInCategory(categorySlug)
+        return topProduct.image
+    }
+
     suspend fun getCategoryProducts(category: String): List<Product>{
         val response = api.getCategoryProducts(category)
         return response.products.map {it.toDomain()}

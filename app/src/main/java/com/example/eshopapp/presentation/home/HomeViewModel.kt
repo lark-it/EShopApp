@@ -6,6 +6,7 @@ import com.example.eshopapp.data.mapper.toUi
 import com.example.eshopapp.data.repository.CategoryRepository
 import com.example.eshopapp.data.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -61,22 +62,49 @@ class HomeViewModel @Inject constructor(
     }
 
     fun loadCategories() {
-        _uiState.update { it.copy(
-            categoriesLoading = true
-        ) }
+        _uiState.update { state ->
+            state.copy(
+                categoriesLoading = true
+            )
+        }
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                val categories = catalogRepo.getCategoriesWithImages(6).map { it.toUi() }
-                _uiState.update { it.copy(
-                    categories = categories,
-                    categoriesLoading = false
-                ) }
+                val categories = catalogRepo.getCategories().take(6).map { it.toUi() }
+                _uiState.update { state ->
+                    state.copy(
+                        categories = categories,
+                        categoriesLoading = false
+                    )
+                }
+
+                categories.forEach { category ->
+                    launch {
+                        val imageUrl = runCatching {
+                            catalogRepo.getCategoryImage(category.slug)
+                        }.getOrNull()
+                        if (imageUrl != null){
+                            _uiState.update { state ->
+                                state.copy(
+                                    categories = state.categories.map { currentCategory ->
+                                        if (currentCategory.slug == category.slug){
+                                            currentCategory.copy(imageUrl = imageUrl)
+                                        } else{
+                                            currentCategory
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
             } catch (e: Exception){
-                _uiState.update { it.copy(
-                    categoriesLoading = false,
-                    categoriesError = e.message ?: "Не удалось загрузить категории"
-                ) }
+                _uiState.update { state ->
+                    state.copy(
+                        categoriesLoading = false,
+                        categoriesError = e.message ?: "Не удалось загрузить категории"
+                    )
+                }
             }
         }
     }

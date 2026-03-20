@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.eshopapp.data.mapper.toUi
 import com.example.eshopapp.data.repository.CategoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,11 +35,36 @@ class CategoryViewModel @Inject constructor(
     fun getCategories() {
         _uiState.value = CategoryUiState.Loading
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                val categories = repo.getCategoriesWithImages().map { it.toUi() }
+                val categories = repo.getCategories().map { it.toUi() }
                 _uiState.value = CategoryUiState.Content(categories)
 
+                categories.forEach { category ->
+                    launch(Dispatchers.IO) {
+                        val imageUrl = runCatching {
+                            repo.getCategoryImage(category.slug)
+                        }.getOrNull()
+
+                        if (imageUrl != null){
+                            _uiState.update { state ->
+                                when (state) {
+                                    is CategoryUiState.Content -> {
+                                        val updatedCategories = state.categories.map { currentCategory ->
+                                            if (currentCategory.slug == category.slug) {
+                                                currentCategory.copy(imageUrl = imageUrl)
+                                            } else {
+                                                currentCategory
+                                            }
+                                        }
+                                        CategoryUiState.Content(updatedCategories)
+                                    }
+                                    else -> state
+                                }
+                            }
+                        }
+                    }
+                }
             } catch (e: Exception) {
                 _uiState.value = CategoryUiState.Error(e.message ?: "беда")
             }
