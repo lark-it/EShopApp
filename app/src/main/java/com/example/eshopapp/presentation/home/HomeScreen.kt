@@ -54,7 +54,9 @@ fun HomeScreen(
     val favoriteIds by favoriteVm.favoriteIds.collectAsState(initial = emptySet())
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize().statusBarsPadding(),
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item{
@@ -118,35 +120,32 @@ fun HomeScreen(
                     style = MaterialTheme.typography.titleLarge
                 )
             }
-            when {
-                state.productsLoading -> {
-                    CircularProgressIndicator()
-                }
-
-                state.productsError != null -> {
+        }
+        when {
+            state.productsLoading -> {
+                item { CircularProgressIndicator() }
+            }
+            state.productsError != null -> {
+                item {
                     Text(state.productsError ?: "")
                     Button(onClick = { viewModel.loadProducts() }) {
                         Text("Повторить")
                     }
                 }
-
-                else -> {
-
-                }
             }
-        }
-        if (!state.productsLoading && state.productsError == null) {
-            items(productRows) { row ->
-                RecommendedRow(
-                    onProductClick = onProductClick,
-                    products = row,
-                    quantityById  = quantityById ,
-                    onAddToCart = {product -> cartVm.addToCart(product)},
-                    onIncrease = { productId -> cartVm.increase(productId) },
-                    onDecrease = { productId -> cartVm.decrease(productId) },
-                    favoriteIds = favoriteIds,
-                    onFavoriteClick = { productId -> favoriteVm.toggleFavorite(productId) }
-                )
+            else -> {
+                items(productRows) { row ->
+                    RecommendedRow(
+                        onProductClick = onProductClick,
+                        products = row,
+                        quantityById  = quantityById ,
+                        onAddToCart = {product -> cartVm.addToCart(product)},
+                        onIncrease = { productId -> cartVm.increase(productId) },
+                        onDecrease = { productId -> cartVm.decrease(productId) },
+                        favoriteIds = favoriteIds,
+                        onFavoriteClick = { productId -> favoriteVm.toggleFavorite(productId) }
+                    )
+                }
             }
         }
     }
@@ -222,9 +221,4 @@ fun RecommendedRow(
             Spacer(modifier = Modifier.weight(1f))
         }
     }
-}
-@Preview(showBackground = true, name = "Light")
-@Composable
-fun HomeScreenPreview(){
-
 }
