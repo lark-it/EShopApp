@@ -37,7 +37,6 @@ import com.example.eshopapp.presentation.favorite.FavoriteViewModel
 fun HomeScreen(
     onProductClick: (Int) -> Unit,
     onCategoryClick: (String) -> Unit,
-    onAllCategoryClick:() -> Unit,
     onSearch: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
     cartVm: CartViewModel,
@@ -75,18 +74,11 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ){
                 Text(
-                    "Популярные категории:",
+                    "Популярные категории",
                     style = MaterialTheme.typography.titleLarge
                 )
-                Button(
-                    onClick = { onAllCategoryClick() }
-                ) {
-                    Text(
-                        "Больше:",
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                }
             }
+
             Spacer(Modifier.height(16.dp))
 
             when{
@@ -116,7 +108,7 @@ fun HomeScreen(
                     .padding(horizontal = 16.dp)
             ) {
                 Text(
-                    "Рекомендуем:",
+                    "Рекомендуем",
                     style = MaterialTheme.typography.titleLarge
                 )
             }

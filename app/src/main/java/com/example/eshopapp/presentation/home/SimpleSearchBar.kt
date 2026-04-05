@@ -1,14 +1,18 @@
 package com.example.eshopapp.presentation.home
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
@@ -46,8 +50,13 @@ fun SimpleSearchBar(
                     Icon(Icons.Default.Search, contentDescription = "Search")
                 },
                 trailingIcon = {
-                    if (state.query.isNotEmpty()){
-                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                    if (state.query.isNotEmpty()) {
+                        IconButton(onClick = { vm.clear() }) {
+                            Icon(
+                                imageVector = Icons.Default.Clear,
+                                contentDescription = "Clear"
+                            )
+                        }
                     }
                 }
             )
@@ -55,14 +64,39 @@ fun SimpleSearchBar(
         expanded = state.expanded && state.suggestions.isNotEmpty(),
         onExpandedChange = { vm.onExpandedChange(it) }
     ) {
-        state.suggestions.forEach { s ->
-            Text(
-                text = s.title,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onSearch(s.title) }
-                    .padding(12.dp)
-            )
+        when {
+            state.isLoading -> {
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+            state.query.isNotBlank() && state.suggestions.isEmpty() -> {
+                Text(
+                    text = "Ничего не найдено",
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+            else -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 240.dp)
+                ) {
+                    state.suggestions.forEach { s ->
+                        ListItem(
+                            headlineContent = { Text(s.title) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    vm.onExpandedChange(false)
+                                    onSearch(s.title)
+                                }
+                        )
+                    }
+                }
+            }
         }
     }
 }

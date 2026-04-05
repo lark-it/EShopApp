@@ -83,10 +83,12 @@ class SearchBarViewModel @Inject constructor(
     }
 
     fun clear() {
+        suggestionsJob?.cancel()
         _uiState.value = _uiState.value.copy(
             query = "",
             suggestions = emptyList(),
             expanded = false,
+            isLoading = false,
             error = null
         )
     }
