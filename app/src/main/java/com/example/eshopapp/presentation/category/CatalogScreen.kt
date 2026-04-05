@@ -1,6 +1,7 @@
 package com.example.eshopapp.presentation.category
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -84,7 +86,13 @@ fun CatalogScreen(
         ) {
             when (val s = state) {
                 is CatalogUiState.Loading -> {
-                    CircularProgressIndicator()
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ){
+                        CircularProgressIndicator()
+                    }
+
                 }
                 is CatalogUiState.Content -> {
                     AllCategoryProducts(
@@ -99,9 +107,14 @@ fun CatalogScreen(
                     )
                 }
                 is CatalogUiState.Error -> {
-                    Text("Ошибка: ${s.message}")
-                    Button(onClick = { viewModel.getCategoryProducts(category) }) {
-                        Text("Повторить")
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ){
+                        Text("Ошибка: ${s.message}")
+                        Button(onClick = { viewModel.getCategoryProducts(category) }) {
+                            Text("Повторить")
+                        }
                     }
                 }
             }

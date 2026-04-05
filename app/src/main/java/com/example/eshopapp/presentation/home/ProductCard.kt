@@ -107,11 +107,13 @@ fun ProductCard(
             } else {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = { onDecrease(product.id) }) {
                         Text("-")
                     }
+
                     Text(quantityById.toString())
                     IconButton(onClick = { onIncrease(product.id) }) {
                         Text("+")
