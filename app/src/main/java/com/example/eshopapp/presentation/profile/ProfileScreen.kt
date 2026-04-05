@@ -1,6 +1,5 @@
 package com.example.eshopapp.presentation.profile
 
-import android.service.autofill.OnClickAction
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,25 +8,26 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -35,10 +35,10 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,18 +47,13 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    onOpenAddressScreen: () -> Unit,
+    viewModel: ProfileViewModel
+) {
     var showAddressSheet by remember { mutableStateOf(false) }
-
-    val testAddresses = listOf(
-        Address(1, "ул. Ленина, д. 1"),
-        Address(2, "ул. Пушкина, д. 10"),
-        Address(3, "пр. Мира, д. 5"),
-        Address(4, "ул. Гагарина, д. 42")
-    )
-
-    var selectedAddress by remember { mutableStateOf(testAddresses[0]) }
-
+    val allAddresses by viewModel.allAddresses.collectAsState()
+    var selectedAddress by remember { mutableStateOf<Address?>(null) }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -154,23 +149,6 @@ fun ProfileScreen() {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Favorite,
-                            contentDescription = null
-                        )
-                        Text("Избранное")
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = null
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = null
                         )
@@ -203,23 +181,39 @@ fun ProfileScreen() {
     }
     if (showAddressSheet){
       AddressBottomSheet(
-          onDismiss = { showAddressSheet = false },
-          addresses = testAddresses,
+          allAddresses = allAddresses,
           selectedAddress = selectedAddress,
           onAddressSelected = { address ->
               selectedAddress = address
+          },
+          onDismiss = { showAddressSheet = false },
+          onOpenAddressScreen = onOpenAddressScreen,
+          onAddressDelete = { address ->
+              viewModel.deleteAddress(address)
+          },
+          onCreateAddress = {
+              viewModel.startCreateAddress()
+          },
+          onEditAddress = { address ->
+              viewModel.startEditAddress(address)
           }
+
       )
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddressBottomSheet(
-    addresses: List<Address>,
-    selectedAddress: Address,
+    allAddresses: List<Address>,
+    selectedAddress: Address?,
+    onAddressSelected: (Address) -> Unit,
     onDismiss: () -> Unit,
-    onAddressSelected: (Address) -> Unit
-){
+    onOpenAddressScreen: () -> Unit,
+    onAddressDelete: (Address) -> Unit,
+    onCreateAddress: () -> Unit,
+    onEditAddress: (Address) -> Unit
+) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false,
         confirmValueChange = {
@@ -229,12 +223,11 @@ fun AddressBottomSheet(
             true
         }
     )
-
+    var openedMenuAddressId by remember { mutableStateOf<Int?>(null) }
     ModalBottomSheet(
         sheetState = sheetState,
         onDismissRequest = onDismiss
     ) {
-        //скопировать с озона
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -245,10 +238,11 @@ fun AddressBottomSheet(
                 Text("Выберите адрес доставки")
             }
 
-            addresses.forEach { address ->
+            allAddresses.forEach { address ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
                         selected = selectedAddress == address,
@@ -257,17 +251,51 @@ fun AddressBottomSheet(
                             onDismiss()
                         }
                     )
-                    Text(text = address.title)
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "edit"
+                    Text(
+                        text = address.street + address.apartment,
+                        modifier = Modifier.weight(1f)
                     )
+
+                    Box {
+                        IconButton(
+                            onClick = { openedMenuAddressId = address.id }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "more"
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = openedMenuAddressId == address.id,
+                            onDismissRequest = { openedMenuAddressId = null }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("редактировать")},
+                                onClick = {
+                                    onEditAddress(address)
+                                    onOpenAddressScreen()
+                                    openedMenuAddressId = null
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("удалить")},
+                                onClick = {
+                                    onAddressDelete(address)
+                                    openedMenuAddressId = null
+                                }
+                            )
+                        }
+                    }
+
                 }
             }
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = { }
+                onClick = {
+                    onCreateAddress()
+                    onOpenAddressScreen()
+                }
             ) {
                 Text("Добавить адрес доставки")
             }

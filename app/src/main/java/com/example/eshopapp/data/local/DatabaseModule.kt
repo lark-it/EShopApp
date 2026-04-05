@@ -24,4 +24,7 @@ class DatabaseModule {
 
     @Provides
     fun provideFavoriteDao(db: AppDatabase) = db.favoriteDao()
+
+    @Provides
+    fun provideAddressDao(db: AppDatabase) = db.addressDao()
 }

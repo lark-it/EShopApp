@@ -35,7 +35,9 @@ import com.example.eshopapp.presentation.favorite.FavoriteScreen
 import com.example.eshopapp.presentation.favorite.FavoriteViewModel
 import com.example.eshopapp.presentation.home.HomeScreen
 import com.example.eshopapp.presentation.home.SearchProductScreen
+import com.example.eshopapp.presentation.profile.AddressScreen
 import com.example.eshopapp.presentation.profile.ProfileScreen
+import com.example.eshopapp.presentation.profile.ProfileViewModel
 
 sealed class Route(val path: String) {
     data object Home : Route("home")
@@ -60,6 +62,8 @@ sealed class Route(val path: String) {
         }
         const val ARG_NAME = "query"
     }
+
+    data object Address : Route("address")
 }
 data class BottomItem(
     val route: Route,
@@ -83,6 +87,7 @@ fun AppNavHost() {
 
     val cartVm: CartViewModel = hiltViewModel()
     val favoriteVm: FavoriteViewModel = hiltViewModel()
+    val profileVm: ProfileViewModel = hiltViewModel()
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -131,9 +136,6 @@ fun AppNavHost() {
                     onCategoryClick = { slug ->
                         navController.navigate(Route.CategoryProducts.createRoute(slug))
                     },
-                    onAllCategoryClick = {
-                        navController.navigate(Route.Category.path)
-                    },
                     onSearch = { query ->
                         navController.navigate(Route.SearchProducts.createRoute(query))
                     },
@@ -179,7 +181,12 @@ fun AppNavHost() {
                 )
             }
 
-            composable(Route.Profile.path){ ProfileScreen() }
+            composable(Route.Profile.path){
+                ProfileScreen(
+                    onOpenAddressScreen = { navController.navigate(Route.Address.path) },
+                    viewModel = profileVm
+                )
+            }
 
             //побочные
             composable(
@@ -229,6 +236,13 @@ fun AppNavHost() {
                     onBackClick = { navController.popBackStack() },
                     cartVm = cartVm,
                     favoriteVm = favoriteVm
+                )
+            }
+
+            composable(Route.Address.path){
+                AddressScreen(
+                    profileVm,
+                    onClosed = { navController.popBackStack() }
                 )
             }
         }
