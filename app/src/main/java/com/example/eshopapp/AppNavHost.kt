@@ -38,6 +38,7 @@ import com.example.eshopapp.presentation.home.SearchProductScreen
 import com.example.eshopapp.presentation.profile.AddressScreen
 import com.example.eshopapp.presentation.profile.ProfileScreen
 import com.example.eshopapp.presentation.profile.ProfileViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 sealed class Route(val path: String) {
     data object Home : Route("home")
@@ -167,6 +168,14 @@ fun AppNavHost() {
                             }
                             restoreState = false
                         }
+                    },
+                    onOpenAddressScreen = { navController.navigate(Route.Address.path) },
+                    onDeleteAddress = { address ->
+                        profileVm.deleteAddress(address)
+                    },
+                    onCreateAddress = { profileVm.startCreateAddress() },
+                    onEditAddress = { address ->
+                        profileVm.startEditAddress(address)
                     }
                 )
             }

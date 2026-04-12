@@ -1,45 +1,59 @@
 package com.example.eshopapp.presentation.cart
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.eshopapp.R
 import com.example.eshopapp.domain.model.Cart
+import com.example.eshopapp.presentation.profile.Address
+import com.example.eshopapp.presentation.profile.AddressBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartScreen(
     cartVm: CartViewModel,
     clearCart: () -> Unit,
-    onGoToHome: () -> Unit
+    onGoToHome: () -> Unit,
+    onOpenAddressScreen: () -> Unit,
+    onDeleteAddress: (Address) -> Unit,
+    onCreateAddress: () -> Unit,
+    onEditAddress: (Address) -> Unit
 ) {
     val state by cartVm.uiState.collectAsState()
     Scaffold(
@@ -61,24 +75,50 @@ fun CartScreen(
         }
     ){ innerPadding ->
         when {
-            state.error != null -> Text(state.error.toString())
+            state.isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ){
+                    CircularProgressIndicator()
+                }
+            }
 
-            state.items.isNotEmpty() -> {
+            state.errorMessage != null -> Text(state.errorMessage.toString())
+
+            state.cartItems.isNotEmpty() -> {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
                 ) {
                     items(
-                        items = state.items,
+                        items = state.cartItems,
                         key = { it.productId }
                     ) { cartItem ->
                         ProductInCart(
-                            item = cartItem
+                            item = cartItem,
+                            onDecrease = { id -> cartVm.decrease(id) },
+                            onIncrease = { id -> cartVm.increase(id) }
                         )
+                        HorizontalDivider(thickness = 2.dp)
                     }
                     item {
-                        ResultCard(state = state)
+                        AddressCard(
+                            cartVm = cartVm,
+                            state = state,
+                            onOpenAddressScreen = onOpenAddressScreen,
+                            onDeleteAddress = onDeleteAddress,
+                            onCreateAddress = onCreateAddress,
+                            onEditAddress = onEditAddress
+                        )
+                        HorizontalDivider(thickness = 2.dp)
+                    }
+                    item {
+                        ResultCard(
+                            state = state,
+                            onMakeOrder = { }
+                        )
                     }
                 }
             }
@@ -100,17 +140,100 @@ fun CartScreen(
 }
 
 @Composable
-fun ProductInCart(
-    item: Cart
-){
-    Card(
+fun AddressCard(
+    cartVm: CartViewModel,
+    state: CartUiState,
+    onOpenAddressScreen: () -> Unit,
+    onDeleteAddress: (Address) -> Unit,
+    onCreateAddress: () -> Unit,
+    onEditAddress: (Address) -> Unit
+) {
+    var showAddressSheet by remember { mutableStateOf(false) }
+    val selectedAddress = state.selectedAddress
+    val text = when{
+        state.allAddresses.isEmpty() -> "Добавить адрес"
+        selectedAddress == null -> "Выбрать адрес"
+        else -> buildAddressText(selectedAddress)
+    }
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(12.dp)
     ) {
-        Row(modifier = Modifier
-            .fillMaxSize()
-            .padding(12.dp)) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Icon(
+                Icons.Default.Place,
+                contentDescription = null
+            )
+            Text("Адрес доставки")
+        }
+        OutlinedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    showAddressSheet = true
+                },
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = text,
+                    modifier = Modifier.weight(1f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = null
+                )
+            }
+        }
+        if(showAddressSheet){
+            AddressBottomSheet(
+                allAddresses = state.allAddresses,
+                selectedAddress = selectedAddress,
+                onAddressSelected = { address ->
+                    cartVm.onAddressSelected(address)
+                },
+                onDismiss = { showAddressSheet = false },
+                onOpenAddressScreen = onOpenAddressScreen,
+                onDeleteAddress = onDeleteAddress,
+                onCreateAddress = onCreateAddress,
+                onEditAddress = onEditAddress
+            )
+        }
+    }
+}
+fun buildAddressText(address: Address): String{
+    val parts = mutableListOf<String>()
+
+    if (address.street.isNotBlank()) parts += address.street
+    if (address.apartment.isNotBlank()) parts += "кв. ${address.apartment}"
+    if (address.entrance.isNotBlank()) parts += "под. ${address.entrance}"
+    if (address.floor.isNotBlank()) parts += "эт. ${address.floor}"
+
+    return parts.joinToString(", ")
+}
+@Composable
+fun ProductInCart(
+    item: Cart,
+    onDecrease: (Int) -> Unit,
+    onIncrease: (Int) -> Unit
+){
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp)) {
             AsyncImage(
                 model = item.image,
                 contentDescription = null,
@@ -123,9 +246,37 @@ fun ProductInCart(
                     .weight(1f)
                     .padding(start = 12.dp)
             ) {
-                Text(item.title)
-                Text(item.price.toString())
-                Text("${item.quantity} шт")
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(item.title)
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = null
+                    )
+                }
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier,
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { onDecrease(item.productId) }) {
+                            Text("-")
+                        }
+                        Text(item.quantity.toString())
+                        IconButton(onClick = { onIncrease(item.productId) }) {
+                            Text("+")
+                        }
+                    }
+
+                    Text((item.price * item.quantity).toString() )
+                }
             }
         }
     }
@@ -133,7 +284,8 @@ fun ProductInCart(
 
 @Composable
 fun ResultCard(
-    state: CartUiState
+    state: CartUiState,
+    onMakeOrder: () -> Unit
 ){
     val totalCount = state.totalCount
     val totalPrice = String.format("%.2f", state.totalPrice)
@@ -148,21 +300,28 @@ fun ResultCard(
                 .fillMaxSize()
                 .padding(12.dp)
         ) {
-            Text(
-                "Ваша корзина"
-            )
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    "Товары ($totalCount)"
-                )
-                Text(
-                    totalPrice
-                )
+                Text("Товаров")
+                Text(text = "$totalCount шт")
             }
-
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Сумма")
+                Text("$ $totalPrice")
+            }
+            Button(
+                onClick = {
+                    onMakeOrder()
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("оформить заказ")
+            }
         }
     }
 }

@@ -4,40 +4,86 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.eshopapp.data.local.CartItemEntity
 import com.example.eshopapp.data.repository.CartRepository
+import com.example.eshopapp.data.repository.ProfileRepository
+import com.example.eshopapp.domain.model.Cart
 import com.example.eshopapp.domain.model.Product
+import com.example.eshopapp.presentation.profile.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class CartUiState(
+    val cartItems: List<Cart> = emptyList(),
+    val totalCount: Int = 0,
+    val totalPrice: Double = 0.0,
+    val allAddresses: List<Address> = emptyList(),
+    val selectedAddress: Address? = null,
+    val isOrderCreated: Boolean = false,
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
+    // Потом реализую
+    //    val deliveryDate: String = "",
+    //    val deliveryTimeSlot: String = "",
+    //    val comment: String? = null,
+)
 @HiltViewModel
 class CartViewModel @Inject constructor(
-    private val repo: CartRepository
+    private val repo: CartRepository,
+    private val profileRepo: ProfileRepository
 ) : ViewModel() {
-    val uiState: StateFlow<CartUiState> =
-        repo.observeCartItems()
-            .map { items ->
-                CartUiState(
-                    items = items,
-                    totalCount = items.sumOf { it.quantity },
-                    totalPrice = items.sumOf { it.price * it.quantity }
-                )
+    private val _uiState = MutableStateFlow<CartUiState>(
+        CartUiState(
+            cartItems = emptyList(),
+            allAddresses = emptyList(),
+            selectedAddress = null,
+            isLoading = false,
+            errorMessage = null,
+            isOrderCreated = false
+        )
+    )
+    val uiState = _uiState.asStateFlow()
+
+    init {
+        observeCartData()
+    }
+    fun observeCartData(){
+        _uiState.update { it.copy(isLoading = true) }
+
+        viewModelScope.launch {
+            repo.observeCartItems().collect { items  ->
+                _uiState.update {
+                    it.copy(
+                        cartItems = items,
+                        totalCount = items.sumOf { item -> item.quantity },
+                        totalPrice = items.sumOf { item -> item.price * item.quantity },
+                        isLoading = false,
+                        errorMessage = null
+                    )
+                }
             }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = CartUiState(
-                    items = emptyList(),
-                    totalCount = 0,
-                    totalPrice = 0.0
-                )
+        }
+
+        viewModelScope.launch {
+            profileRepo.getAllAddresses().collect { items ->
+                _uiState.update {
+                    it.copy(
+                        allAddresses = items
+                    )
+                }
+            }
+        }
+    }
+
+    fun onAddressSelected(address: Address){
+        _uiState.update {
+            it.copy(
+                selectedAddress = address
             )
+        }
+    }
 
     fun addToCart(product: Product) {
         viewModelScope.launch {
