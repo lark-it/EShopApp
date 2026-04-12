@@ -46,8 +46,8 @@ fun HomeScreen(
     val productRows = state.products.chunked(2)
 
     val cartState by cartVm.uiState.collectAsState()
-    val quantityById = remember(cartState.items) {
-        cartState.items.associate { it.productId to it.quantity }
+    val quantityById = remember(cartState.cartItems) {
+        cartState.cartItems.associate { it.productId to it.quantity }
     }
 
     val favoriteIds by favoriteVm.favoriteIds.collectAsState(initial = emptySet())

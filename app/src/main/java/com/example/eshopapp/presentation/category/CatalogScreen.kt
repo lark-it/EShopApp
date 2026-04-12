@@ -50,8 +50,8 @@ fun CatalogScreen(
     val state by viewModel.catalogState.collectAsState()
 
     val cartState by cartVm.uiState.collectAsState()
-    val quantityById = remember(cartState.items) {
-        cartState.items.associate { it.productId to it.quantity }
+    val quantityById = remember(cartState.cartItems) {
+        cartState.cartItems.associate { it.productId to it.quantity }
     }
 
     val favoriteIds = favoriteVm.favoriteIds.collectAsState().value

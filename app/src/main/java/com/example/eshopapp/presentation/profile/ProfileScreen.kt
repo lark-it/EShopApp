@@ -188,7 +188,7 @@ fun ProfileScreen(
           },
           onDismiss = { showAddressSheet = false },
           onOpenAddressScreen = onOpenAddressScreen,
-          onAddressDelete = { address ->
+          onDeleteAddress = { address ->
               viewModel.deleteAddress(address)
           },
           onCreateAddress = {
@@ -197,7 +197,6 @@ fun ProfileScreen(
           onEditAddress = { address ->
               viewModel.startEditAddress(address)
           }
-
       )
     }
 }
@@ -210,7 +209,7 @@ fun AddressBottomSheet(
     onAddressSelected: (Address) -> Unit,
     onDismiss: () -> Unit,
     onOpenAddressScreen: () -> Unit,
-    onAddressDelete: (Address) -> Unit,
+    onDeleteAddress: (Address) -> Unit,
     onCreateAddress: () -> Unit,
     onEditAddress: (Address) -> Unit
 ) {
@@ -280,7 +279,7 @@ fun AddressBottomSheet(
                             DropdownMenuItem(
                                 text = { Text("удалить")},
                                 onClick = {
-                                    onAddressDelete(address)
+                                    onDeleteAddress(address)
                                     openedMenuAddressId = null
                                 }
                             )

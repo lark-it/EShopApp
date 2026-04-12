@@ -44,9 +44,6 @@ fun AllCategoriesScreen(
                 onSearch = onSearch
             )
         }
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            Text("Все категории")
-        }
         when(val s = state){
             is CategoryUiState.Loading -> {
                 item(span = { GridItemSpan(maxLineSpan) }) {
