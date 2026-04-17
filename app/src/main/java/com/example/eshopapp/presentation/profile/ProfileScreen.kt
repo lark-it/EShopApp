@@ -44,11 +44,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.eshopapp.domain.model.Order
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     onOpenAddressScreen: () -> Unit,
+    onOpenOrdersScreen: () -> Unit,
     viewModel: ProfileViewModel
 ) {
     var showAddressSheet by remember { mutableStateOf(false) }
@@ -110,7 +112,8 @@ fun ProfileScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(12.dp),
+                            .padding(12.dp)
+                            .clickable { onOpenOrdersScreen() },
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Icon(

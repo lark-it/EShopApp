@@ -7,13 +7,16 @@ import androidx.room.RoomDatabase
     entities = [
         CartItemEntity::class,
         FavoriteEntity::class,
-        AddressEntity::class
+        AddressEntity::class,
+        OrderEntity::class,
+        OrderItemEntity::class
     ],
-    version = 3,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun cartDao(): CartDao
     abstract fun favoriteDao(): FavoriteDao
     abstract fun addressDao(): AddressDao
+    abstract fun orderDao(): OrderDao
 }

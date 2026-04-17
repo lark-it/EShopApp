@@ -99,7 +99,8 @@ fun CartScreen(
                         ProductInCart(
                             item = cartItem,
                             onDecrease = { id -> cartVm.decrease(id) },
-                            onIncrease = { id -> cartVm.increase(id) }
+                            onIncrease = { id -> cartVm.increase(id) },
+                            onDeleteById = { id -> cartVm.deleteById(id) }
                         )
                         HorizontalDivider(thickness = 2.dp)
                     }
@@ -117,7 +118,9 @@ fun CartScreen(
                     item {
                         ResultCard(
                             state = state,
-                            onMakeOrder = { }
+                            onMakeOrder = {
+                                cartVm.makeOrder()
+                            }
                         )
                     }
                 }
@@ -153,7 +156,7 @@ fun AddressCard(
     val text = when{
         state.allAddresses.isEmpty() -> "Добавить адрес"
         selectedAddress == null -> "Выбрать адрес"
-        else -> buildAddressText(selectedAddress)
+        else -> cartVm.buildAddressText(selectedAddress)
     }
     Column(
         modifier = Modifier
@@ -210,21 +213,12 @@ fun AddressCard(
         }
     }
 }
-fun buildAddressText(address: Address): String{
-    val parts = mutableListOf<String>()
-
-    if (address.street.isNotBlank()) parts += address.street
-    if (address.apartment.isNotBlank()) parts += "кв. ${address.apartment}"
-    if (address.entrance.isNotBlank()) parts += "под. ${address.entrance}"
-    if (address.floor.isNotBlank()) parts += "эт. ${address.floor}"
-
-    return parts.joinToString(", ")
-}
 @Composable
 fun ProductInCart(
     item: Cart,
     onDecrease: (Int) -> Unit,
-    onIncrease: (Int) -> Unit
+    onIncrease: (Int) -> Unit,
+    onDeleteById: (Int) -> Unit
 ){
     Box(
         modifier = Modifier
@@ -253,7 +247,8 @@ fun ProductInCart(
                     Text(item.title)
                     Icon(
                         Icons.Default.Delete,
-                        contentDescription = null
+                        contentDescription = null,
+                        modifier = Modifier.clickable(onClick = { onDeleteById(item.productId) })
                     )
                 }
                 Row(

@@ -36,6 +36,7 @@ import com.example.eshopapp.presentation.favorite.FavoriteViewModel
 import com.example.eshopapp.presentation.home.HomeScreen
 import com.example.eshopapp.presentation.home.SearchProductScreen
 import com.example.eshopapp.presentation.profile.AddressScreen
+import com.example.eshopapp.presentation.profile.OrdersScreen
 import com.example.eshopapp.presentation.profile.ProfileScreen
 import com.example.eshopapp.presentation.profile.ProfileViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -65,6 +66,7 @@ sealed class Route(val path: String) {
     }
 
     data object Address : Route("address")
+    data object Orders : Route("orders")
 }
 data class BottomItem(
     val route: Route,
@@ -193,6 +195,7 @@ fun AppNavHost() {
             composable(Route.Profile.path){
                 ProfileScreen(
                     onOpenAddressScreen = { navController.navigate(Route.Address.path) },
+                    onOpenOrdersScreen = { navController.navigate(Route.Orders.path) },
                     viewModel = profileVm
                 )
             }
@@ -252,6 +255,13 @@ fun AppNavHost() {
                 AddressScreen(
                     profileVm,
                     onClosed = { navController.popBackStack() }
+                )
+            }
+
+            composable(Route.Orders.path){
+                OrdersScreen(
+                    viewModel = profileVm,
+                    onBackClick = { navController.popBackStack() }
                 )
             }
         }

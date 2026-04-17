@@ -4,8 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.eshopapp.data.local.CartItemEntity
 import com.example.eshopapp.data.repository.CartRepository
+import com.example.eshopapp.data.repository.OrderRepository
 import com.example.eshopapp.data.repository.ProfileRepository
 import com.example.eshopapp.domain.model.Cart
+import com.example.eshopapp.domain.model.Order
+import com.example.eshopapp.domain.model.OrderItem
 import com.example.eshopapp.domain.model.Product
 import com.example.eshopapp.presentation.profile.Address
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 data class CartUiState(
@@ -21,7 +25,6 @@ data class CartUiState(
     val totalPrice: Double = 0.0,
     val allAddresses: List<Address> = emptyList(),
     val selectedAddress: Address? = null,
-    val isOrderCreated: Boolean = false,
     val isLoading: Boolean = false,
     val errorMessage: String? = null
     // Потом реализую
@@ -32,7 +35,8 @@ data class CartUiState(
 @HiltViewModel
 class CartViewModel @Inject constructor(
     private val repo: CartRepository,
-    private val profileRepo: ProfileRepository
+    private val profileRepo: ProfileRepository,
+    private val orderRepo: OrderRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<CartUiState>(
         CartUiState(
@@ -40,8 +44,7 @@ class CartViewModel @Inject constructor(
             allAddresses = emptyList(),
             selectedAddress = null,
             isLoading = false,
-            errorMessage = null,
-            isOrderCreated = false
+            errorMessage = null
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -115,5 +118,54 @@ class CartViewModel @Inject constructor(
         viewModelScope.launch {
             repo.clearCart()
         }
+    }
+
+    fun deleteById(id: Int){
+        viewModelScope.launch {
+            repo.deleteById(id)
+        }
+    }
+    fun buildAddressText(address: Address): String{
+        val parts = mutableListOf<String>()
+
+        if (address.street.isNotBlank()) parts += address.street
+        if (address.apartment.isNotBlank()) parts += "кв. ${address.apartment}"
+        if (address.entrance.isNotBlank()) parts += "под. ${address.entrance}"
+        if (address.floor.isNotBlank()) parts += "эт. ${address.floor}"
+
+        return parts.joinToString(", ")
+    }
+
+    fun makeOrder(){
+        val state = uiState.value
+        val selectedAddress = state.selectedAddress ?: return
+        if (state.cartItems.isEmpty()) return
+
+        val order = Order(
+            orderNumber = generateOrderNumber(),
+            createdAt = System.currentTimeMillis(),
+            items = state.cartItems.map { cartItem ->
+                OrderItem(
+                    productId = cartItem.productId,
+                    title = cartItem.title,
+                    price = cartItem.price,
+                    image = cartItem.image,
+                    quantity = cartItem.quantity
+                )
+            },
+            totalCount = state.totalCount,
+            totalPrice = state.totalPrice,
+            addressText = buildAddressText(selectedAddress)
+        )
+        viewModelScope.launch {
+            orderRepo.insertOrder(order)
+            repo.clearCart()
+        }
+    }
+    private fun generateOrderNumber(): String {
+        val date = java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.getDefault())
+            .format(java.util.Date())
+        val random = (100000..999999).random()
+        return "ORD-$date-$random"
     }
 }

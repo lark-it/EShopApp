@@ -27,4 +27,7 @@ class DatabaseModule {
 
     @Provides
     fun provideAddressDao(db: AppDatabase) = db.addressDao()
+
+    @Provides
+    fun provideOrdersDao(db: AppDatabase) = db.orderDao()
 }
