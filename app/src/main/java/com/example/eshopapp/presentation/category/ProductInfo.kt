@@ -47,6 +47,7 @@ import com.example.eshopapp.domain.model.Review
 import com.example.eshopapp.presentation.favorite.FavoriteViewModel
 import com.example.eshopapp.presentation.home.HomeViewModel
 import com.example.eshopapp.presentation.home.ProductUiState
+import com.example.eshopapp.utils.toMoneyFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -142,7 +143,7 @@ fun ProductInfo(
                             style = MaterialTheme.typography.titleLarge
                         )
                         Text(
-                            product.price.toString(),
+                            product.price.toMoneyFormat(),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Black
                         )

@@ -43,6 +43,7 @@ import com.example.eshopapp.R
 import com.example.eshopapp.domain.model.Cart
 import com.example.eshopapp.presentation.profile.Address
 import com.example.eshopapp.presentation.profile.AddressBottomSheet
+import com.example.eshopapp.utils.toMoneyFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -270,7 +271,7 @@ fun ProductInCart(
                         }
                     }
 
-                    Text((item.price * item.quantity).toString() )
+                    Text((item.price * item.quantity).toMoneyFormat())
                 }
             }
         }
@@ -283,7 +284,6 @@ fun ResultCard(
     onMakeOrder: () -> Unit
 ){
     val totalCount = state.totalCount
-    val totalPrice = String.format("%.2f", state.totalPrice)
 
     Card(
         modifier = Modifier
@@ -307,13 +307,14 @@ fun ResultCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text("Сумма")
-                Text("$ $totalPrice")
+                Text(state.totalPrice.toMoneyFormat())
             }
             Button(
                 onClick = {
                     onMakeOrder()
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = state.selectedAddress != null
             ) {
                 Text("оформить заказ")
             }

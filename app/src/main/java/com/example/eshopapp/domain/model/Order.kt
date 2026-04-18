@@ -6,7 +6,7 @@ data class Order(
     val createdAt: Long,
     val items: List<OrderItem>,
     val totalCount: Int,
-    val totalPrice: Double,
+    val totalPrice: Long,
     val addressText: String
     //статуса заказа не будет
 )
@@ -14,7 +14,7 @@ data class Order(
 data class OrderItem(
     val productId: Int,
     val title: String,
-    val price: Double,
+    val price: Long,
     val image: String,
     val quantity: Int
 )

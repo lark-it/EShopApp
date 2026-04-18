@@ -42,6 +42,7 @@ import coil.compose.AsyncImage
 import com.example.eshopapp.R
 import com.example.eshopapp.domain.model.Order
 import com.example.eshopapp.utils.toDisplayFormat
+import com.example.eshopapp.utils.toMoneyFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -131,7 +132,7 @@ fun OrdersCard(
                             modifier = Modifier.size(128.dp)
                         )
                         Text(
-                            text = item.price.toString()
+                            text = item.price.toMoneyFormat()
                         )
                     }
                 }
@@ -150,7 +151,7 @@ fun OrdersCard(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Цена")
                     Text(
-                        order.totalPrice.toString()
+                        order.totalPrice.toMoneyFormat()
                     )
                 }
                 Spacer(Modifier.weight(1f))
@@ -179,13 +180,13 @@ fun OrderBottomSheet(
             Text(text = "Заказ ${order.orderNumber}")
             Text(text = "Дата: ${order.createdAt.toDisplayFormat()}")
             Text(text = "Адрес: ${order.addressText}")
-            Text(text = "Сумма: ${order.totalPrice}")
+            Text(text = "Сумма: ${order.totalPrice.toMoneyFormat()}")
             Text(text = "Количество товаров: ${order.totalCount}")
 
             Spacer(modifier = Modifier.size(12.dp))
 
             order.items.forEach { item ->
-                Text(text = "${item.title} x${item.quantity} = ${item.price}")
+                Text(text = "${item.title} x${item.quantity} = ${(item.price * item.quantity).toMoneyFormat()}")
             }
         }
     }

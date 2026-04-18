@@ -22,7 +22,7 @@ import javax.inject.Inject
 data class CartUiState(
     val cartItems: List<Cart> = emptyList(),
     val totalCount: Int = 0,
-    val totalPrice: Double = 0.0,
+    val totalPrice: Long = 0,
     val allAddresses: List<Address> = emptyList(),
     val selectedAddress: Address? = null,
     val isLoading: Boolean = false,

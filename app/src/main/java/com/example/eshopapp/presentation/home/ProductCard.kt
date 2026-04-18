@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.eshopapp.R
 import com.example.eshopapp.domain.model.Product
+import com.example.eshopapp.utils.toMoneyFormat
 
 
 @Composable
@@ -84,7 +85,7 @@ fun ProductCard(
                 modifier = Modifier.padding(8.dp)
             ) {
                 Text(
-                    product.price.toString() + "₽",
+                    product.price.toMoneyFormat(),
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(

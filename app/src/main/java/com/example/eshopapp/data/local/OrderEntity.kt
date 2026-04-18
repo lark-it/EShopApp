@@ -13,7 +13,7 @@ data class OrderEntity(
     val orderNumber: String,
     val createdAt: Long,
     val totalCount: Int,
-    val totalPrice: Double,
+    val totalPrice: Long,
     val addressText: String
 )
 
@@ -32,7 +32,7 @@ data class OrderItemEntity(
     val orderId: Long,
     val productId: Int,
     val title: String,
-    val price: Double,
+    val price: Long,
     val image: String,
     val quantity: Int
 )
