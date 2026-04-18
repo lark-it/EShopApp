@@ -65,6 +65,7 @@ import com.example.eshopapp.domain.model.Order
 fun ProfileScreen(
     onOpenAddressScreen: () -> Unit,
     onOpenOrdersScreen: () -> Unit,
+    onSignOut: () -> Unit,
     viewModel: ProfileViewModel
 ) {
     var showAddressSheet by remember { mutableStateOf(false) }
@@ -109,7 +110,7 @@ fun ProfileScreen(
             MenuItem(
                 icon = Icons.AutoMirrored.Filled.ExitToApp,
                 title = "Выход",
-                onClick = {  }
+                onClick = { onSignOut() }
             )
         }
     }

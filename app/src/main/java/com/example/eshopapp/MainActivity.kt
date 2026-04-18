@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.example.eshopapp.data.auth.AuthRepository
 import com.example.eshopapp.presentation.home.HomeScreen
 import com.example.eshopapp.ui.theme.EShopAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -13,9 +14,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        //ИЗМЕНИТЬ!
+        val repository = AuthRepository()
+        val isUserLoggedIn = repository.isUserLoggedIn()
         setContent {
             EShopAppTheme {
-                AppNavHost()
+                AppNavHost(isUserLoggedIn)
             }
         }
     }

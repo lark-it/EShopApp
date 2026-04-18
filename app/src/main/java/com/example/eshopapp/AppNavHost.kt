@@ -16,8 +16,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavType
@@ -26,6 +31,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.eshopapp.data.auth.AuthRepository
+import com.example.eshopapp.presentation.AuthScreen
 import com.example.eshopapp.presentation.cart.CartScreen
 import com.example.eshopapp.presentation.cart.CartViewModel
 import com.example.eshopapp.presentation.category.AllCategoriesScreen
@@ -40,6 +47,7 @@ import com.example.eshopapp.presentation.profile.OrdersScreen
 import com.example.eshopapp.presentation.profile.ProfileScreen
 import com.example.eshopapp.presentation.profile.ProfileViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 
 sealed class Route(val path: String) {
     data object Home : Route("home")
@@ -67,6 +75,7 @@ sealed class Route(val path: String) {
 
     data object Address : Route("address")
     data object Orders : Route("orders")
+    data object Auth : Route("auth")
 }
 data class BottomItem(
     val route: Route,
@@ -83,7 +92,9 @@ val bottomItems = listOf(
 )
 
 @Composable
-fun AppNavHost() {
+fun AppNavHost(
+    isUserLoggedIn: Boolean
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -92,43 +103,60 @@ fun AppNavHost() {
     val favoriteVm: FavoriteViewModel = hiltViewModel()
     val profileVm: ProfileViewModel = hiltViewModel()
 
+    val showBottomBar = currentDestination?.route != Route.Auth.path
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val credentialManager = remember(context) {
+        CredentialManager.create(context)
+    }
+
+    val authRepository = remember {
+        AuthRepository()
+    }
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            NavigationBar {
-                bottomItems.forEach { item ->
-                    val selected = currentDestination
-                        ?.hierarchy
-                        ?.any { it.route == item.route.path } == true
+            if (showBottomBar){
+                NavigationBar {
+                    bottomItems.forEach { item ->
+                        val selected = currentDestination
+                            ?.hierarchy
+                            ?.any { it.route == item.route.path } == true
 
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = {
-                            val popped = navController.popBackStack(item.route.path, inclusive = false)
-                            if (!popped) {
-                                navController.navigate(item.route.path){
-                                    launchSingleTop = true
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        saveState = true
+                        NavigationBarItem(
+                            selected = selected,
+                            onClick = {
+                                val popped = navController.popBackStack(item.route.path, inclusive = false)
+                                if (!popped) {
+                                    navController.navigate(item.route.path){
+                                        launchSingleTop = true
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = true
+                                        }
+                                        restoreState = true
                                     }
-                                    restoreState = true
                                 }
+                            },
+                            icon = {
+                                Icon(item.icon, contentDescription = null)
+                            },
+                            label = {
+                                Text(item.label)
                             }
-                        },
-                        icon = {
-                            Icon(item.icon, contentDescription = null)
-                        },
-                        label = {
-                            Text(item.label)
-                        }
-                    )
+                        )
+                    }
                 }
             }
+
         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Route.Home.path,
+            startDestination =
+                if (isUserLoggedIn) { Route.Home.path }
+                else { Route.Auth.path },
             modifier = Modifier.padding(innerPadding)
         ){
             composable(Route.Home.path) {
@@ -196,6 +224,22 @@ fun AppNavHost() {
                 ProfileScreen(
                     onOpenAddressScreen = { navController.navigate(Route.Address.path) },
                     onOpenOrdersScreen = { navController.navigate(Route.Orders.path) },
+                    onSignOut = {
+                        authRepository.signOut()
+
+                        scope.launch {
+                            try {
+                                credentialManager.clearCredentialState(ClearCredentialStateRequest())
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+
+                            navController.navigate(Route.Auth.path) {
+                                popUpTo(navController.graph.id) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        }
+                    },
                     viewModel = profileVm
                 )
             }
@@ -262,6 +306,16 @@ fun AppNavHost() {
                 OrdersScreen(
                     viewModel = profileVm,
                     onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable(Route.Auth.path){
+                AuthScreen(
+                    onAuthSuccess = {
+                        navController.navigate("home") {
+                            popUpTo("auth") { inclusive = true }
+                        }
+                    }
                 )
             }
         }
