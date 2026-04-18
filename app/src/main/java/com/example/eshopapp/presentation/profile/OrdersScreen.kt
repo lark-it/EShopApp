@@ -1,5 +1,7 @@
 package com.example.eshopapp.presentation.profile
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -36,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -73,7 +77,9 @@ fun OrdersScreen(
         }
     ) { innerPadding ->
         LazyColumn(
-            modifier = Modifier.padding(innerPadding).fillMaxSize()
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
         ) {
             items(allOrders){ item ->
                 OrdersCard(
@@ -99,23 +105,30 @@ fun OrdersCard(
     onDetailsClick: () -> Unit
 ){
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp)
+        modifier = Modifier.padding(12.dp).fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        tonalElevation = 2.dp,
+        shadowElevation = 4.dp
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(8.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
+                Icon(
+                    imageVector = Icons.Default.Done,
+                    contentDescription = null)
                 Text(
                     text = order.orderNumber
                 )
+                Spacer(Modifier.weight(1f))
                 Text(
                     text = order.createdAt.toDisplayFormat()
                 )
             }
+            HorizontalDivider(thickness = 2.dp)
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
 
