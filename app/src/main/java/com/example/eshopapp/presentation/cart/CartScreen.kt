@@ -1,5 +1,6 @@
 package com.example.eshopapp.presentation.cart
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -284,6 +286,7 @@ fun ResultCard(
     onMakeOrder: () -> Unit
 ){
     val totalCount = state.totalCount
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier
@@ -312,6 +315,7 @@ fun ResultCard(
             Button(
                 onClick = {
                     onMakeOrder()
+                    Toast.makeText(context, "Заказ создан", Toast.LENGTH_SHORT).show()
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = state.selectedAddress != null

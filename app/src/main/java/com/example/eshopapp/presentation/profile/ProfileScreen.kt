@@ -3,6 +3,7 @@ package com.example.eshopapp.presentation.profile
 import android.R
 import android.graphics.drawable.Icon
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -57,6 +58,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -80,6 +82,7 @@ fun ProfileScreen(
     val profile = remember {
         authRepository.getCurrentUserProfile()
     }
+    val context = LocalContext.current
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -113,7 +116,9 @@ fun ProfileScreen(
             MenuItem(
                 icon = Icons.Default.Settings,
                 title = "Настройки",
-                onClick = {  }
+                onClick = {
+                    Toast.makeText(context, "В стадии разработки", Toast.LENGTH_SHORT).show()
+                }
             )
 
             MenuItem(
