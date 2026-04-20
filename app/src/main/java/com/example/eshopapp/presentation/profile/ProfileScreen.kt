@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -58,6 +59,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.example.eshopapp.data.auth.AuthRepository
+import com.example.eshopapp.data.auth.UserProfile
 import com.example.eshopapp.domain.model.Order
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,11 +70,16 @@ fun ProfileScreen(
     onOpenAddressScreen: () -> Unit,
     onOpenOrdersScreen: () -> Unit,
     onSignOut: () -> Unit,
-    viewModel: ProfileViewModel
+    viewModel: ProfileViewModel,
+    authRepository: AuthRepository = AuthRepository()
 ) {
     var showAddressSheet by remember { mutableStateOf(false) }
     val allAddresses by viewModel.allAddresses.collectAsState()
     var selectedAddress by remember { mutableStateOf<Address?>(null) }
+
+    val profile = remember {
+        authRepository.getCurrentUserProfile()
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -88,7 +97,7 @@ fun ProfileScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 12.dp)
         ) {
-            UserCard()
+            UserCard(profile)
             MenuItem(
                 icon = Icons.Default.ShoppingCart,
                 title = "Мои заказы",
@@ -137,7 +146,9 @@ fun ProfileScreen(
 }
 
 @Composable
-fun UserCard(){
+fun UserCard(
+    profile: UserProfile?
+){
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -148,24 +159,22 @@ fun UserCard(){
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+//            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Image(
-                painter = painterResource(com.example.eshopapp.R.drawable.img_profile),
+            AsyncImage(
+                model = profile?.photoUrl ?:
+                    painterResource(com.example.eshopapp.R.drawable.img_profile),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(88.dp)
                     .clip(CircleShape)
             )
+            Spacer(Modifier.width(12.dp))
             Column() {
-                Text("Иван Иванович")
-                Text("@ivan")
+                Text(text = profile?.name ?: "Аноним")
+                Text(text = profile?.email ?: "без почты")
             }
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = null
-            )
         }
     }
 }
